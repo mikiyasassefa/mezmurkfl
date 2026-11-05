@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hymns — ፈለገሕይወት መዝሙር ክፍል</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <style>
+    .copyright-banner {
+      display: flex; gap: var(--sp-3); align-items: flex-start;
+      background: var(--clr-warning-bg);
+      border: 1px solid #FFCC80;
+      border-radius: var(--r-lg);
+      padding: var(--sp-4) var(--sp-5);
+      margin-bottom: var(--sp-6);
+      font-size: var(--fs-sm);
+      color: var(--clr-warning);
+    }
+    .copyright-banner svg { flex-shrink: 0; margin-top: 2px; }
+    .hymn-toolbar {
+      display: flex; gap: var(--sp-3); flex-wrap: wrap; align-items: center;
+      margin-bottom: var(--sp-5);
+    }
+    .hymn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: var(--sp-5); }
+    .hymn-action-btns { display: flex; gap: var(--sp-2); }
+    .melody-link {
+      display: inline-flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-4);
+      background: var(--clr-primary-xlight);
+      color: var(--clr-primary);
+      border-radius: var(--r-full);
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      text-decoration: none;
+      transition: all var(--t-fast);
+      border: 1px solid var(--clr-border);
+    }
+    .melody-link:hover { background: var(--clr-primary); color: white; }
+    .season-filter { display: flex; gap: var(--sp-2); flex-wrap: wrap; }
+    .season-chip {
+      padding: var(--sp-1) var(--sp-4);
+      border-radius: var(--r-full);
+      font-size: var(--fs-xs);
+      font-weight: 600;
+      border: 2px solid var(--clr-border);
+      color: var(--clr-text-muted);
+      cursor: pointer;
+      transition: all var(--t-fast);
+      background: var(--clr-surface);
+    }
+    .season-chip.active { background: var(--clr-primary); color: white; border-color: var(--clr-primary); }
+    .season-chip:hover:not(.active) { border-color: var(--clr-primary); color: var(--clr-primary); }
+    .authorized-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: var(--fs-xs); font-weight: 600;
+      color: var(--clr-success);
+    }
+  </style>
+</head>
+<body>
+  <div id="appShell"></div>
+  <div id="pageContent" style="display:none">
+
+    <!-- Copyright Reminder -->
+    <div class="copyright-banner" role="note">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div>
+        <strong>Copyright Reminder:</strong> Only share hymn lyrics, audio, and melody resources that the ministry is properly authorized to use. 
+        Verify permissions before distributing any copyrighted material. All hymns marked <span class="authorized-badge">✓ Authorized</span> have been cleared for internal ministry use.
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="hymn-toolbar">
+      <div class="search-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="hymnSearch" placeholder="Search hymns..." aria-label="Search hymns"/>
+      </div>
+      <div class="season-filter" id="seasonFilter" role="group" aria-label="Filter by season"></div>
+      <button class="btn btn-primary btn-sm" id="addHymnBtn" style="margin-left:auto">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Hymn
+      </button>
+    </div>
+
+    <!-- Results -->
+    <div id="hymnGrid" class="hymn-grid"></div>
+  </div>
+
+  <!-- Add/Edit Hymn Modal -->
+  <div class="modal-overlay" id="hymnModal" role="dialog" aria-modal="true" aria-labelledby="hymnModalTitle">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h2 class="modal-title" id="hymnModalTitle">Add Hymn</h2>
+        <button class="modal-close" onclick="NAV.closeModal('hymnModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="hymnTitle">Title (Ethiopic / Amharic) <span class="required">*</span></label>
+            <input type="text" id="hymnTitle" class="form-control" placeholder="e.g. ሃሌሉያ"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="hymnTitleEn">Title (English) <span style="font-weight:400;color:var(--clr-text-muted)">(optional)</span></label>
+            <input type="text" id="hymnTitleEn" class="form-control" placeholder="e.g. Hallelujah"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="hymnSeason">Season / Occasion <span class="required">*</span></label>
+            <select id="hymnSeason" class="form-control">
+              <option value="">— Select —</option>
+              <option>General</option><option>Advent</option><option>Christmas</option>
+              <option>Epiphany</option><option>Lent</option><option>Easter</option>
+              <option>Pentecost</option><option>Ordinary Time</option><option>Special Event</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="hymnLang">Language</label>
+            <select id="hymnLang" class="form-control">
+              <option>Amharic</option><option>Ge'ez</option><option>Tigrinya</option><option>English</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="hymnLyrics">Lyrics <span class="required">*</span></label>
+          <textarea id="hymnLyrics" class="form-control" rows="8" placeholder="Paste the full hymn lyrics here…" style="font-family: var(--font-ethiopic); line-height: 1.8"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="hymnMelodyUrl">Melody Link (YouTube / Audio URL)</label>
+            <input type="url" id="hymnMelodyUrl" class="form-control" placeholder="https://youtube.com/watch?v=..."/>
+            <div class="form-hint">Link to an authorized melody resource for practice.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="hymnNotes">Notes</label>
+            <input type="text" id="hymnNotes" class="form-control" placeholder="e.g. Opening hymn for Easter"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:var(--sp-3);cursor:pointer">
+            <input type="checkbox" id="hymnAuth" checked style="width:18px;height:18px;accent-color:var(--clr-primary)"/>
+            <span class="form-label" style="margin-bottom:0">Authorized for ministry use</span>
+          </label>
+          <div class="form-hint">Check this only if you have confirmed this hymn may be shared within the ministry.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" onclick="NAV.closeModal('hymnModal')">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="hymnSaveBtn">Save Hymn</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/nav.js"></script>
+  <script>
+    let editingHymnId = null;
+    let currentSeason = '';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!AUTH.initProtectedPage()) return;
+      DB.seed();
+      NAV.init({ activePage: 'hymns', pageTitle: 'Hymn Learning' });
+      initHymns();
+    });
+
+    function initHymns() {
+      document.getElementById('hymnSearch').addEventListener('input', renderHymns);
+      document.getElementById('addHymnBtn').addEventListener('click', openAddModal);
+      document.getElementById('hymnSaveBtn').addEventListener('click', saveHymn);
+      document.getElementById('hymnModal').addEventListener('click', e => { if (e.target.id === 'hymnModal') NAV.closeModal('hymnModal'); });
+
+      buildSeasonChips();
+      renderHymns();
+    }
+
+    function buildSeasonChips() {
+      const seasons = ['All', ...new Set(DB.Hymns.all().map(h => h.season).filter(Boolean))];
+      document.getElementById('seasonFilter').innerHTML = seasons.map(s => `
+        <button class="season-chip ${s === 'All' || (s === currentSeason) ? 'active' : ''}" data-season="${s === 'All' ? '' : s}">${s}</button>
+      `).join('');
+      document.querySelectorAll('.season-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          currentSeason = chip.dataset.season;
+          document.querySelectorAll('.season-chip').forEach(c => c.classList.toggle('active', c.dataset.season === currentSeason));
+          renderHymns();
+        });
+      });
+    }
+
+    function renderHymns() {
+      const q = document.getElementById('hymnSearch').value;
+      const hymns = DB.Hymns.search(q, currentSeason);
+      const container = document.getElementById('hymnGrid');
+
+      if (!hymns.length) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1">
+            <div class="empty-state-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+            <div class="empty-state-title">No hymns found</div>
+            <div class="empty-state-desc">Add your first hymn using the button above, or adjust your search.</div>
+            <button class="btn btn-primary" onclick="openAddModal()">Add Hymn</button>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = hymns.map(hymnCard).join('');
+    }
+
+    function hymnCard(h) {
+      const hasLink = h.melodyUrl && h.melodyUrl.trim();
+      return `
+        <article class="hymn-card">
+          <div class="hymn-card-header">
+            <div>
+              <div class="hymn-card-title ethiopic">${h.title}</div>
+              ${h.titleEn ? `<div class="hymn-card-meta">${h.titleEn}</div>` : ''}
+              <div class="hymn-card-meta" style="margin-top:4px">
+                ${h.season} &bull; ${h.language}
+                ${h.authorized ? `<span class="authorized-badge" style="margin-left:6px">✓ Authorized</span>` : ''}
+              </div>
+            </div>
+            <div class="hymn-action-btns">
+              <button class="btn btn-icon" onclick="openEditModal('${h.id}')" aria-label="Edit hymn" title="Edit">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="btn btn-icon" onclick="deleteHymn('${h.id}')" aria-label="Delete hymn" title="Delete" style="color:var(--clr-error)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="hymn-card-body">
+            ${hasLink ? `
+              <a href="${h.melodyUrl}" target="_blank" rel="noopener noreferrer" class="melody-link" aria-label="Open melody resource">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Listen / Melody Resource
+              </a>` : `
+              <span style="font-size:var(--fs-xs);color:var(--clr-text-light)">No melody link added yet.</span>`}
+
+            <details class="lyrics-accordion" style="margin-top: var(--sp-4)">
+              <summary>View Lyrics</summary>
+              <pre class="lyrics-text">${escapeHtml(h.lyrics || '')}</pre>
+            </details>
+            ${h.notes ? `<p style="margin-top:var(--sp-3);font-size:var(--fs-xs);color:var(--clr-text-muted);font-style:italic">${h.notes}</p>` : ''}
+          </div>
+        </article>`;
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function openAddModal() {
+      editingHymnId = null;
+      document.getElementById('hymnModalTitle').textContent = 'Add Hymn';
+      clearHymnForm();
+      document.getElementById('hymnAuth').checked = true;
+      NAV.openModal('hymnModal');
+    }
+
+    function openEditModal(id) {
+      const h = DB.Hymns.byId(id);
+      if (!h) return;
+      editingHymnId = id;
+      document.getElementById('hymnModalTitle').textContent = 'Edit Hymn';
+      document.getElementById('hymnTitle').value     = h.title || '';
+      document.getElementById('hymnTitleEn').value   = h.titleEn || '';
+      document.getElementById('hymnSeason').value    = h.season || '';
+      document.getElementById('hymnLang').value      = h.language || 'Amharic';
+      document.getElementById('hymnLyrics').value    = h.lyrics || '';
+      document.getElementById('hymnMelodyUrl').value = h.melodyUrl || '';
+      document.getElementById('hymnNotes').value     = h.notes || '';
+      document.getElementById('hymnAuth').checked    = !!h.authorized;
+      NAV.openModal('hymnModal');
+    }
+
+    function clearHymnForm() {
+      ['hymnTitle','hymnTitleEn','hymnLyrics','hymnMelodyUrl','hymnNotes'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('hymnSeason').value = '';
+      document.getElementById('hymnLang').value = 'Amharic';
+    }
+
+    function saveHymn() {
+      const title  = document.getElementById('hymnTitle').value.trim();
+      const lyrics = document.getElementById('hymnLyrics').value.trim();
+      const season = document.getElementById('hymnSeason').value;
+
+      if (!title) { NAV.toast('error', 'Title required', 'Please enter a hymn title.'); document.getElementById('hymnTitle').focus(); return; }
+      if (!lyrics) { NAV.toast('error', 'Lyrics required', 'Please enter the hymn lyrics.'); document.getElementById('hymnLyrics').focus(); return; }
+      if (!season) { NAV.toast('error', 'Season required', 'Please select a season or occasion.'); document.getElementById('hymnSeason').focus(); return; }
+
+      const data = {
+        title, lyrics, season,
+        titleEn:    document.getElementById('hymnTitleEn').value.trim(),
+        language:   document.getElementById('hymnLang').value,
+        melodyUrl:  document.getElementById('hymnMelodyUrl').value.trim(),
+        melodyType: 'link',
+        notes:      document.getElementById('hymnNotes').value.trim(),
+        authorized: document.getElementById('hymnAuth').checked,
+      };
+
+      if (editingHymnId) {
+        DB.Hymns.update(editingHymnId, data);
+        NAV.toast('success', 'Hymn updated', `"${title}" has been updated.`);
+      } else {
+        DB.Hymns.add(data);
+        NAV.toast('success', 'Hymn added', `"${title}" has been added to the hymn library.`);
+      }
+
+      NAV.closeModal('hymnModal');
+      buildSeasonChips();
+      renderHymns();
+    }
+
+    function deleteHymn(id) {
+      const h = DB.Hymns.byId(id);
+      NAV.confirm(`Delete "${h?.title}"? This cannot be undone.`, () => {
+        DB.Hymns.remove(id);
+        NAV.toast('success', 'Hymn deleted');
+        buildSeasonChips();
+        renderHymns();
+      });
+    }
+  </script>
+</body>
+</html>

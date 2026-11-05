@@ -1,0 +1,16 @@
+# Server files
+start-server.bat
+start-server-hidden.vbs
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log

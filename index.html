@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="ፈለገሕይወት መዝሙር ክፍል — Sunday School Choir & Hymn Learning Program. Register, track attendance, learn hymns, and manage resources."/>
+  <title>ፈለገሕይወት መዝሙር ክፍል — Home</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <style>
+    .public-footer {
+      background: var(--clr-primary-dark);
+      color: rgba(245,235,224,0.7);
+      text-align: center;
+      padding: var(--sp-8) var(--sp-6);
+      font-size: var(--fs-sm);
+    }
+    .public-footer strong { color: var(--clr-accent); }
+    .about-section {
+      background: var(--clr-cream);
+      padding: var(--sp-16) var(--sp-8);
+    }
+    .about-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-12);
+      align-items: center;
+    }
+    .about-logo {
+      width: 220px;
+      height: 220px;
+      border-radius: var(--r-2xl);
+      object-fit: cover;
+      margin: 0 auto;
+      display: block;
+      border: 4px solid var(--clr-accent);
+      box-shadow: var(--shadow-lg);
+    }
+    .about-text h2 { font-size: var(--fs-3xl); color: var(--clr-primary); margin-bottom: var(--sp-4); }
+    .about-text p { color: var(--clr-text-muted); line-height: 1.8; margin-bottom: var(--sp-4); }
+    .stats-strip {
+      background: var(--gradient-primary);
+      padding: var(--sp-10) var(--sp-8);
+      display: flex;
+      justify-content: center;
+      gap: var(--sp-16);
+      flex-wrap: wrap;
+    }
+    .strip-stat { text-align: center; }
+    .strip-stat-value { font-size: var(--fs-4xl); font-weight: 800; color: var(--clr-accent); }
+    .strip-stat-label { font-size: var(--fs-sm); color: rgba(245,235,224,0.8); margin-top: 4px; }
+    @media (max-width: 768px) {
+      .about-inner { grid-template-columns: 1fr; gap: var(--sp-6); text-align: center; }
+      .public-nav .desktop-only { display: none; }
+      .stats-strip { gap: var(--sp-8); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="public-header" role="banner">
+    <div class="public-logo-area">
+      <img src="assets/logo.png" alt="ፈለገሕይወት Church Logo" class="public-logo"/>
+      <div>
+        <div class="public-site-name ethiopic">ፈለገሕይወት መዝሙር ክፍል</div>
+        <div class="public-site-sub">Sunday School Choir Program</div>
+      </div>
+    </div>
+    <nav class="public-nav" aria-label="Public navigation">
+      <a href="#features" class="desktop-only">Features</a>
+      <a href="#about" class="desktop-only">About</a>
+      <a href="login.html" class="btn btn-accent btn-sm" id="signInBtn">Sign In</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero" aria-label="Welcome hero">
+      <img src="assets/logo.png" alt="ፈለገሕይወት Church Logo" class="hero-logo"/>
+      <h1 class="hero-title">ፈለገሕይወት መዝሙር ክፍል</h1>
+      <p class="hero-subtitle">Sunday School Choir & Hymn Learning Program</p>
+      <p class="hero-desc">
+        A digital home for our beloved Sunday School choir ministry. 
+        Manage registrations, track attendance, learn sacred hymns, and steward resources — all in one place.
+      </p>
+      <div class="hero-actions">
+        <a href="login.html" class="btn btn-accent btn-lg" id="heroSignInBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Admin Sign In
+        </a>
+        <a href="#features" class="btn btn-outline btn-lg" style="color:var(--clr-cream);border-color:rgba(245,235,224,0.5)">
+          Explore Features
+        </a>
+      </div>
+    </section>
+
+    <!-- Stats strip -->
+    <section class="stats-strip" aria-label="Quick statistics">
+      <div class="strip-stat">
+        <div class="strip-stat-value" id="statStudents">35</div>
+        <div class="strip-stat-label">Registered Members</div>
+      </div>
+      <div class="strip-stat">
+        <div class="strip-stat-value">7</div>
+        <div class="strip-stat-label">Sunday School Classes</div>
+      </div>
+      <div class="strip-stat">
+        <div class="strip-stat-value" id="statSessions">0</div>
+        <div class="strip-stat-label">Sessions Recorded</div>
+      </div>
+      <div class="strip-stat">
+        <div class="strip-stat-value" id="statEquip">10</div>
+        <div class="strip-stat-label">Equipment Items</div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features-section" id="features" aria-label="Core features">
+      <h2 class="section-title">Everything Your Ministry Needs</h2>
+      <p class="section-desc">A complete digital toolset for your Sunday School choir — secure, mobile-ready, and easy to use.</p>
+
+      <div class="grid-auto" style="margin-top: var(--sp-10)">
+
+        <div class="feature-card">
+          <div class="feature-locked" aria-label="Requires login">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          </div>
+          <h3 class="feature-title">Member Registration</h3>
+          <p class="feature-desc">Register new choir members with full profiles — name, age, class, parent contact, and more. Complete form validation keeps data clean.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-locked" aria-label="Requires login">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3 class="feature-title">Student Directory</h3>
+          <p class="feature-desc">Browse all choir members organized by class. Search by name, filter by class, and quickly find any student's full profile.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-locked" aria-label="Requires login">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <h3 class="feature-title">Attendance Tracker</h3>
+          <p class="feature-desc">Record Present, Absent, or Excused for each session. Tap a student to view their full attendance history with beautiful charts.</p>
+        </div>
+
+
+        <div class="feature-card">
+          <div class="feature-locked" aria-label="Requires login">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          </div>
+          <h3 class="feature-title">Equipment Manager</h3>
+          <p class="feature-desc">Catalog instruments, AV gear, and printed materials. Track quantities, condition, checkouts, returns, and maintenance logs.</p>
+        </div>
+
+        <div class="feature-card" style="background: var(--gradient-primary); border: none;">
+          <div class="feature-icon" style="background: rgba(245,194,0,0.2); color: var(--clr-accent);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <h3 class="feature-title" style="color: var(--clr-cream);">Admin Access Only</h3>
+          <p class="feature-desc" style="color: rgba(245,235,224,0.75);">All features above are protected. Sign in with your admin credentials to access the full dashboard and manage your ministry data.</p>
+          <a href="login.html" class="btn btn-accent" style="margin-top: var(--sp-5); display:inline-flex" id="featureSignInBtn">Sign In Now →</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="about-section" id="about">
+      <div class="about-inner">
+        <div>
+          <img src="assets/logo.png" alt="Church Logo" class="about-logo"/>
+        </div>
+        <div class="about-text">
+          <h2>About Our Ministry</h2>
+          <p>
+            <strong style="color:var(--clr-primary)">ፈለገሕይወት መዝሙር ክፍል</strong> (The River of Life Choir Section) is the Sunday School choir program dedicated to raising a generation of worshippers rooted in sacred Ethiopian Orthodox tradition.
+          </p>
+          <p>
+            Through weekly rehearsals, structured learning, and joyful participation in church services, our students grow in faith, music, and community. We serve across <strong style="color:var(--clr-primary)">7 classes</strong> from beginners to advanced youth groups.
+          </p>
+          <p>
+            This digital platform helps our admin team stay organized so that more time can be devoted to what matters most — nurturing the next generation of church musicians.
+          </p>
+          <a href="login.html" class="btn btn-primary" id="aboutSignInBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Admin Sign In
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="public-footer" role="contentinfo">
+    <p><strong>ፈለገሕይወት መዝሙር ክፍል</strong> — Sunday School Choir & Hymn Learning Program</p>
+    <p style="margin-top:var(--sp-2)">All student and ministry data is kept private and accessible to authorized administrators only.</p>
+    <p style="margin-top:var(--sp-3); font-size: var(--fs-xs); opacity: 0.6;">© 2024 ፈለገሕይወት ሰንበት ት/ቤት. All rights reserved.</p>
+  </footer>
+
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script>
+    // Update live stats from localStorage (if data exists)
+    document.addEventListener('DOMContentLoaded', () => {
+      DB.seed();
+      const students  = DB.Students.all();
+      const sessions  = DB.Attendance.getSessionDates();
+      const equip     = DB.Equipment.all();
+      if (students.length) document.getElementById('statStudents').textContent = students.length;
+      if (sessions.length) document.getElementById('statSessions').textContent = sessions.length;
+      if (equip.length)    document.getElementById('statEquip').textContent    = equip.length;
+
+      // If already logged in, change Sign In button to Dashboard
+      if (AUTH.isAuthenticated()) {
+        document.querySelectorAll('[id$="SignInBtn"]').forEach(btn => {
+          if (btn.tagName === 'A') {
+            btn.href = 'dashboard.html';
+            btn.innerHTML = btn.innerHTML.replace(/Sign In( Now →)?/, 'Go to Dashboard →');
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

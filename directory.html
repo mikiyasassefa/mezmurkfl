@@ -1,0 +1,393 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Directory — ፈለገሕይወት መዝሙር ክፍል</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <style>
+    .dir-toolbar {
+      display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap;
+      margin-bottom: var(--sp-5);
+    }
+    .student-card {
+      background: var(--clr-surface);
+      border-radius: var(--r-xl);
+      border: 2px solid var(--clr-border-light);
+      padding: var(--sp-5);
+      display: flex; align-items: flex-start; gap: var(--sp-4);
+      transition: all var(--t-normal);
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+    .student-card:hover { border-color: var(--clr-primary); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .student-card-info { flex: 1; min-width: 0; }
+    .student-card-name { font-weight: 700; font-size: var(--fs-base); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .student-card-meta { font-size: var(--fs-xs); color: var(--clr-text-muted); display: flex; flex-wrap: wrap; gap: 6px; }
+    .student-card-badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: var(--sp-2); }
+    .list-view .student-card {
+      border-radius: var(--r-lg);
+      padding: var(--sp-3) var(--sp-5);
+      align-items: center;
+    }
+    .list-view .student-card-badges { display: none; }
+    .view-toggle { display: flex; gap: 2px; }
+    .view-btn {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--r-md);
+      color: var(--clr-text-muted);
+      border: 2px solid var(--clr-border-light);
+      transition: all var(--t-fast);
+    }
+    .view-btn.active { background: var(--clr-primary); color: white; border-color: var(--clr-primary); }
+    .dir-count { font-size: var(--fs-sm); color: var(--clr-text-muted); font-weight: 500; }
+    .class-section-label {
+      font-size: var(--fs-sm); font-weight: 700; color: var(--clr-primary);
+      margin: var(--sp-6) 0 var(--sp-3);
+      font-family: var(--font-ethiopic);
+      display: flex; align-items: center; gap: var(--sp-2);
+    }
+    .class-section-label::after { content: ''; flex: 1; height: 2px; background: var(--clr-primary-xlight); }
+
+    /* Student Profile Modal */
+    .profile-header { background: var(--gradient-primary); padding: var(--sp-6); border-radius: var(--r-xl) var(--r-xl) 0 0; display: flex; gap: var(--sp-5); align-items: center; }
+    .profile-name  { font-size: var(--fs-2xl); font-weight: 800; color: var(--clr-cream); }
+    .profile-class { font-size: var(--fs-sm); color: rgba(245,235,224,0.75); font-family: var(--font-ethiopic); }
+    .profile-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: var(--sp-4); margin-bottom: var(--sp-5); }
+    .profile-stat  { text-align: center; padding: var(--sp-3); background: var(--clr-cream); border-radius: var(--r-md); }
+    .profile-stat-value { font-size: var(--fs-xl); font-weight: 800; color: var(--clr-primary); }
+    .profile-stat-label { font-size: var(--fs-xs); color: var(--clr-text-muted); margin-top: 2px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); }
+    .info-item { padding: var(--sp-3); background: var(--clr-cream); border-radius: var(--r-md); }
+    .info-label { font-size: var(--fs-xs); color: var(--clr-text-muted); font-weight: 600; margin-bottom: 2px; }
+    .info-value { font-size: var(--fs-sm); font-weight: 600; }
+
+    @media (max-width: 480px) {
+      .profile-stats { grid-template-columns: repeat(2,1fr); }
+      .info-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="appShell"></div>
+  <div id="pageContent" style="display:none">
+
+    <!-- Toolbar -->
+    <div class="dir-toolbar">
+      <div class="search-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="searchInput" placeholder="Search by name..." aria-label="Search students"/>
+      </div>
+      <select id="classFilter" class="form-control" style="width:auto;min-width:150px" aria-label="Filter by class">
+        <option value="">All Classes</option>
+      </select>
+
+      <div class="view-toggle" role="group" aria-label="View mode">
+        <button class="view-btn active" id="gridViewBtn" aria-label="Grid view" aria-pressed="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </button>
+        <button class="view-btn" id="listViewBtn" aria-label="List view" aria-pressed="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+      </div>
+      <span class="dir-count" id="dirCount"></span>
+    </div>
+
+    <!-- Results -->
+    <div id="dirResults"></div>
+  </div>
+
+  <!-- Student Profile Modal -->
+  <div class="modal-overlay" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+    <div class="modal modal-lg">
+      <div id="profileContent"></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" id="editStudentBtn">Edit</button>
+        <button class="btn btn-primary btn-sm" onclick="NAV.closeModal('profileModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Student Modal -->
+  <div class="modal-overlay" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="editModalTitle">Edit Student</h2>
+        <button class="modal-close" onclick="NAV.closeModal('editModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body" id="editModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" onclick="NAV.closeModal('editModal')">Cancel</button>
+        <button class="btn btn-danger btn-sm" id="deleteStudentBtn">Delete</button>
+        <button class="btn btn-primary btn-sm" id="saveEditBtn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+    <script src="firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-sync.js"></script><script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/nav.js"></script>
+  <script>
+    let currentView = 'grid';
+    let currentStudentId = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!AUTH.initProtectedPage()) return;
+      DB.seed();
+      CLOUD.init();
+      await DB.pullFromCloud();
+      NAV.init({ activePage: 'directory', pageTitle: 'Student Directory' });
+      initDirectory();
+    });
+
+    function initDirectory() {
+      // Populate filters
+      const classFilter = document.getElementById('classFilter');
+      DB.CLASSES.forEach(c => { const o = document.createElement('option'); o.value = o.textContent = c; classFilter.appendChild(o); });
+
+      document.getElementById('searchInput').addEventListener('input', renderDirectory);
+      classFilter.addEventListener('change', renderDirectory);
+      document.getElementById('gridViewBtn').addEventListener('click', () => setView('grid'));
+      document.getElementById('listViewBtn').addEventListener('click', () => setView('list'));
+      document.getElementById('editStudentBtn').addEventListener('click', openEditModal);
+
+      // Modal close on overlay click
+      document.getElementById('profileModal').addEventListener('click', e => { if (e.target.id === 'profileModal') NAV.closeModal('profileModal'); });
+      document.getElementById('editModal').addEventListener('click', e => { if (e.target.id === 'editModal') NAV.closeModal('editModal'); });
+
+      renderDirectory();
+    }
+
+    function setView(view) {
+      currentView = view;
+      document.getElementById('gridViewBtn').classList.toggle('active', view === 'grid');
+      document.getElementById('listViewBtn').classList.toggle('active', view === 'list');
+      document.getElementById('gridViewBtn').setAttribute('aria-pressed', view === 'grid');
+      document.getElementById('listViewBtn').setAttribute('aria-pressed', view === 'list');
+      renderDirectory();
+    }
+
+    function renderDirectory() {
+      const q       = document.getElementById('searchInput').value;
+      const cls     = document.getElementById('classFilter').value;
+      const students = DB.Students.search(q, cls);
+      const container = document.getElementById('dirResults');
+
+      document.getElementById('dirCount').textContent = `${students.length} member${students.length !== 1 ? 's' : ''}`;
+
+      if (students.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+            <div class="empty-state-title">No students found</div>
+            <div class="empty-state-desc">Try adjusting your search or filters. You can register new members from the Registration page.</div>
+            <a href="registration.html" class="btn btn-primary">Register a Student</a>
+          </div>`;
+        return;
+      }
+
+      // If filtering by class, flat list; otherwise group by class
+      if (cls || q) {
+        renderFlatList(students, container);
+      } else {
+        renderGroupedList(students, container);
+      }
+    }
+
+    function renderFlatList(students, container) {
+      if (currentView === 'grid') {
+        container.innerHTML = `<div class="grid-auto">${students.map(studentCard).join('')}</div>`;
+      } else {
+        container.innerHTML = `<div class="list-view" style="display:flex;flex-direction:column;gap:var(--sp-2)">${students.map(studentCard).join('')}</div>`;
+      }
+      attachCardClicks();
+    }
+
+    function renderGroupedList(students, container) {
+      let html = '';
+      DB.CLASSES.forEach(cls => {
+        const classStudents = students.filter(s => s.class === cls);
+        if (!classStudents.length) return;
+        html += `<div class="class-section-label"><span>${cls}</span></div>`;
+        if (currentView === 'grid') {
+          html += `<div class="grid-auto" style="margin-bottom:var(--sp-4)">${classStudents.map(studentCard).join('')}</div>`;
+        } else {
+          html += `<div style="display:flex;flex-direction:column;gap:var(--sp-2);margin-bottom:var(--sp-4)">${classStudents.map(studentCard).join('')}</div>`;
+        }
+      });
+      container.innerHTML = html;
+      attachCardClicks();
+    }
+
+    function studentCard(s) {
+      const initials = NAV.getInitials(s.name);
+      const color    = NAV.avatarColor(s.name);
+      const stats    = DB.Attendance.getStatsForStudent(s.id);
+      return `
+        <div class="student-card" data-id="${s.id}" role="button" tabindex="0" aria-label="Open ${s.name}'s profile">
+          <div class="avatar avatar-lg" style="background:${color};font-size:1.25rem">${initials}</div>
+          <div class="student-card-info">
+            <div class="student-card-name">${s.name}</div>
+            <div class="student-card-meta">
+              <span>Age ${s.age}</span>
+              ${stats.total > 0 ? `<span>·</span><span>${stats.rate}% attendance</span>` : ''}
+            </div>
+            <div class="student-card-badges">
+              <span class="badge badge-primary">${s.class}</span>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function attachCardClicks() {
+      document.querySelectorAll('.student-card[data-id]').forEach(card => {
+        card.addEventListener('click',  () => openProfile(card.dataset.id));
+        card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openProfile(card.dataset.id); });
+      });
+    }
+
+    function openProfile(id) {
+      currentStudentId = id;
+      const s     = DB.Students.byId(id);
+      if (!s) return;
+      const stats = DB.Attendance.getStatsForStudent(id);
+      const history = DB.Attendance.getSummaryForStudent(id, 8);
+      const initials = NAV.getInitials(s.name);
+      const color    = NAV.avatarColor(s.name);
+
+      const historyBars = history.length ? history.map(h => {
+        const color = h.status === 'present' ? 'var(--clr-success)' : h.status === 'absent' ? 'var(--clr-error)' : 'var(--clr-warning)';
+        const label = h.status === 'present' ? 'P' : h.status === 'absent' ? 'A' : 'E';
+        return `
+          <div style="text-align:center;flex:1">
+            <div style="height:36px;background:${color};opacity:0.85;border-radius:var(--r-sm);margin-bottom:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:700">${label}</div>
+            <div style="font-size:9px;color:var(--clr-text-muted)">${h.date.slice(5)}</div>
+          </div>`;
+      }).join('') : `<div style="color:var(--clr-text-muted);font-size:var(--fs-sm);text-align:center;width:100%;padding:var(--sp-4)">No attendance records yet.</div>`;
+
+      document.getElementById('profileContent').innerHTML = `
+        <div class="profile-header">
+          <div class="avatar avatar-xl" style="background:${color};font-size:2rem;border:3px solid var(--clr-accent)">${initials}</div>
+          <div>
+            <div class="profile-name" id="profileModalTitle">${s.name}</div>
+            <div class="profile-class">${s.class}</div>
+            <div style="margin-top:var(--sp-2);display:flex;gap:var(--sp-2);flex-wrap:wrap">
+              <span class="badge" style="background:rgba(255,255,255,0.15);color:var(--clr-cream)">Age ${s.age}</span>
+            </div>
+          </div>
+        </div>
+        <div style="padding: var(--sp-5)">
+          <div class="profile-stats">
+            <div class="profile-stat"><div class="profile-stat-value">${stats.total}</div><div class="profile-stat-label">Sessions</div></div>
+            <div class="profile-stat"><div class="profile-stat-value" style="color:var(--clr-success)">${stats.present}</div><div class="profile-stat-label">Present</div></div>
+            <div class="profile-stat"><div class="profile-stat-value" style="color:var(--clr-error)">${stats.absent}</div><div class="profile-stat-label">Absent</div></div>
+            <div class="profile-stat"><div class="profile-stat-value" style="color:var(--clr-primary)">${stats.rate}%</div><div class="profile-stat-label">Rate</div></div>
+          </div>
+
+          <div style="margin-bottom: var(--sp-5)">
+            <div style="font-size:var(--fs-sm);font-weight:700;color:var(--clr-text);margin-bottom:var(--sp-3)">Recent Attendance (Last 8 Sessions)</div>
+            <div style="display:flex;gap:var(--sp-2);align-items:flex-end">${historyBars}</div>
+            <div style="display:flex;gap:var(--sp-4);margin-top:var(--sp-3);font-size:var(--fs-xs);color:var(--clr-text-muted)">
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--clr-success);display:inline-block"></span>Present</span>
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--clr-error);display:inline-block"></span>Absent</span>
+              <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:var(--clr-warning);display:inline-block"></span>Excused</span>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item"><div class="info-label">Parent / Guardian</div><div class="info-value">${s.parentName || '—'}</div></div>
+            <div class="info-item"><div class="info-label">Phone</div><div class="info-value">${s.parentPhone || '—'}</div></div>
+            <div class="info-item"><div class="info-label">Email</div><div class="info-value">${s.parentEmail || '—'}</div></div>
+            <div class="info-item"><div class="info-label">Enrolled</div><div class="info-value">${NAV.formatDate(s.enrollDate)}</div></div>
+          </div>
+          ${s.notes ? `<div class="info-item" style="margin-top:var(--sp-3)"><div class="info-label">Notes</div><div class="info-value" style="font-weight:400">${s.notes}</div></div>` : ''}
+        </div>`;
+
+      NAV.openModal('profileModal');
+    }
+
+    function openEditModal() {
+      const s = DB.Students.byId(currentStudentId);
+      if (!s) return;
+      NAV.closeModal('profileModal');
+
+      const classOpts  = DB.CLASSES.map(c => `<option value="${c}" ${s.class === c ? 'selected' : ''}>${c}</option>`).join('');
+
+      document.getElementById('editModalBody').innerHTML = `
+        <div class="form-group">
+          <label class="form-label" for="editName">Full Name</label>
+          <input type="text" id="editName" class="form-control" value="${s.name}"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="editAge">Age</label>
+            <input type="number" id="editAge" class="form-control" value="${s.age}" min="4" max="25"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="editEnroll">Enrolled</label>
+            <input type="date" id="editEnroll" class="form-control" value="${s.enrollDate}"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editClass">Class</label>
+          <select id="editClass" class="form-control">${classOpts}</select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="editParent">Parent Name</label>
+            <input type="text" id="editParent" class="form-control" value="${s.parentName || ''}"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="editPhone">Phone</label>
+            <input type="tel" id="editPhone" class="form-control" value="${s.parentPhone || ''}"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editEmail">Parent Email</label>
+          <input type="email" id="editEmail" class="form-control" value="${s.parentEmail || ''}"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="editNotes">Notes</label>
+          <textarea id="editNotes" class="form-control" rows="2">${s.notes || ''}</textarea>
+        </div>`;
+
+      document.getElementById('saveEditBtn').onclick = () => {
+        const name = document.getElementById('editName').value.trim();
+        if (!name) { NAV.toast('error', 'Name required', 'Please enter a full name.'); return; }
+        DB.Students.update(currentStudentId, {
+          name,
+          age:         parseInt(document.getElementById('editAge').value) || s.age,
+          enrollDate:  document.getElementById('editEnroll').value,
+          class:       document.getElementById('editClass').value,
+          parentName:  document.getElementById('editParent').value.trim(),
+          parentPhone: document.getElementById('editPhone').value.trim(),
+          parentEmail: document.getElementById('editEmail').value.trim(),
+          notes:       document.getElementById('editNotes').value.trim(),
+        });
+        NAV.closeModal('editModal');
+        NAV.toast('success', 'Student updated', `${name}'s profile has been updated.`);
+        renderDirectory();
+      };
+
+      document.getElementById('deleteStudentBtn').onclick = () => {
+        const s2 = DB.Students.byId(currentStudentId);
+        NAV.confirm(`Are you sure you want to delete ${s2?.name}'s profile? This cannot be undone.`, () => {
+          DB.Students.remove(currentStudentId);
+          NAV.closeModal('editModal');
+          NAV.toast('success', 'Student deleted', 'The student profile has been removed.');
+          renderDirectory();
+        });
+      };
+
+      NAV.openModal('editModal');
+    }
+  </script>
+</body>
+</html>
+
+

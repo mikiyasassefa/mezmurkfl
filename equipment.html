@@ -1,0 +1,505 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Equipment — ፈለገሕይወት መዝሙር ክፍል</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <style>
+    .equip-toolbar { display: flex; gap: var(--sp-3); flex-wrap: wrap; align-items: center; margin-bottom: var(--sp-5); }
+    .condition-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: var(--r-full); font-size: var(--fs-xs); font-weight: 700; }
+    .condition-Good    { background: var(--clr-success-bg); color: var(--clr-success); }
+    .condition-Fair    { background: var(--clr-warning-bg); color: var(--clr-warning); }
+    .condition-Needs-Repair { background: var(--clr-error-bg); color: var(--clr-error); }
+    .condition-Retired { background: var(--clr-cream); color: var(--clr-text-muted); }
+    .item-row {
+      display: flex; align-items: center; gap: var(--sp-4);
+      padding: var(--sp-4);
+      border-radius: var(--r-lg);
+      border: 2px solid var(--clr-border-light);
+      background: var(--clr-surface);
+      margin-bottom: var(--sp-3);
+      transition: all var(--t-fast);
+    }
+    .item-row:hover { border-color: var(--clr-primary); box-shadow: var(--shadow-sm); }
+    .item-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--r-md);
+      background: var(--clr-primary-xlight);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--clr-primary);
+      flex-shrink: 0;
+    }
+    .item-info { flex: 1; min-width: 0; }
+    .item-name { font-weight: 700; font-size: var(--fs-sm); }
+    .item-meta { font-size: var(--fs-xs); color: var(--clr-text-muted); display: flex; gap: var(--sp-3); flex-wrap: wrap; margin-top: 2px; }
+    .item-actions { display: flex; gap: var(--sp-2); flex-shrink: 0; flex-wrap: wrap; }
+    .checkout-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--clr-info-bg); color: var(--clr-info);
+      padding: 2px 8px; border-radius: var(--r-full);
+      font-size: var(--fs-xs); font-weight: 700;
+    }
+    .maint-log-item {
+      padding: var(--sp-3);
+      border-radius: var(--r-md);
+      background: var(--clr-cream);
+      font-size: var(--fs-xs);
+      margin-bottom: var(--sp-2);
+    }
+    .maint-log-item:last-child { margin-bottom: 0; }
+    .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-4); margin-bottom: var(--sp-6); }
+    @media (max-width: 768px) {
+      .summary-cards { grid-template-columns: repeat(2, 1fr); }
+      .item-row { flex-wrap: wrap; }
+    }
+    @media (max-width: 480px) {
+      .item-actions { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div id="appShell"></div>
+  <div id="pageContent" style="display:none">
+
+    <!-- Summary Cards -->
+    <div class="summary-cards" id="equipSummary"></div>
+
+    <!-- Toolbar -->
+    <div class="equip-toolbar">
+      <div class="search-bar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="equipSearch" placeholder="Search equipment..." aria-label="Search equipment"/>
+      </div>
+      <select id="categoryFilter" class="form-control" style="width:auto" aria-label="Filter by category">
+        <option value="">All Categories</option>
+      </select>
+      <select id="conditionFilter" class="form-control" style="width:auto" aria-label="Filter by condition">
+        <option value="">All Conditions</option>
+      </select>
+      <button class="btn btn-primary btn-sm" id="addEquipBtn" style="margin-left:auto">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Item
+      </button>
+    </div>
+
+    <!-- Active Checkouts -->
+    <div id="activeCheckoutsWrap" class="mb-6"></div>
+
+    <!-- Equipment List -->
+    <div id="equipList"></div>
+  </div>
+
+  <!-- Add/Edit Equipment Modal -->
+  <div class="modal-overlay" id="equipModal" role="dialog" aria-modal="true" aria-labelledby="equipModalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="equipModalTitle">Add Equipment</h2>
+        <button class="modal-close" onclick="NAV.closeModal('equipModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="equipName">Item Name <span class="required">*</span></label>
+          <input type="text" id="equipName" class="form-control" placeholder="e.g. Acoustic Guitar"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="equipCategory">Category</label>
+            <select id="equipCategory" class="form-control"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="equipCondition">Condition</label>
+            <select id="equipCondition" class="form-control"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="equipQty">Quantity <span class="required">*</span></label>
+            <input type="number" id="equipQty" class="form-control" min="1" value="1"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="equipLocation">Storage Location</label>
+            <input type="text" id="equipLocation" class="form-control" placeholder="e.g. Main Hall"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="equipDesc">Description</label>
+          <textarea id="equipDesc" class="form-control" rows="2" placeholder="Model, serial number, notes…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" onclick="NAV.closeModal('equipModal')">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="equipSaveBtn">Save Item</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div class="modal-overlay" id="checkoutModal" role="dialog" aria-modal="true" aria-labelledby="checkoutModalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="checkoutModalTitle">Check Out Item</h2>
+        <button class="modal-close" onclick="NAV.closeModal('checkoutModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:var(--fs-sm);color:var(--clr-text-muted);margin-bottom:var(--sp-5)">
+          Item: <strong id="checkoutItemName" style="color:var(--clr-primary)"></strong>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="checkoutBorrower">Borrower Name <span class="required">*</span></label>
+          <input type="text" id="checkoutBorrower" class="form-control" placeholder="Who is taking this item?"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="checkoutPurpose">Purpose</label>
+          <input type="text" id="checkoutPurpose" class="form-control" placeholder="e.g. Saturday rehearsal"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="checkoutReturn">Expected Return Date</label>
+          <input type="date" id="checkoutReturn" class="form-control"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" onclick="NAV.closeModal('checkoutModal')">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="checkoutSaveBtn">Confirm Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Return Modal -->
+  <div class="modal-overlay" id="returnModal" role="dialog" aria-modal="true" aria-labelledby="returnModalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="returnModalTitle">Return Item</h2>
+        <button class="modal-close" onclick="NAV.closeModal('returnModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:var(--fs-sm);color:var(--clr-text-muted);margin-bottom:var(--sp-5)">
+          Returning: <strong id="returnItemName" style="color:var(--clr-primary)"></strong>
+          <br/>Borrowed by: <span id="returnBorrower"></span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="returnCondition">Condition on Return</label>
+          <select id="returnCondition" class="form-control"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="returnNotes">Return Notes</label>
+          <textarea id="returnNotes" class="form-control" rows="2" placeholder="Any damage, issues, or notes…"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" onclick="NAV.closeModal('returnModal')">Cancel</button>
+        <button class="btn btn-primary btn-sm" id="returnSaveBtn">Confirm Return</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Maintenance Modal -->
+  <div class="modal-overlay" id="maintModal" role="dialog" aria-modal="true" aria-labelledby="maintModalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="maintModalTitle">Maintenance Log</h2>
+        <button class="modal-close" onclick="NAV.closeModal('maintModal')" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:var(--fs-sm);font-weight:700;color:var(--clr-primary);margin-bottom:var(--sp-4)" id="maintItemName"></div>
+        <div id="maintLogList" style="margin-bottom:var(--sp-5);max-height:200px;overflow-y:auto"></div>
+        <div class="divider-label"><span>Add Log Entry</span></div>
+        <div class="form-group" style="margin-top:var(--sp-4)">
+          <label class="form-label" for="maintDesc">Description <span class="required">*</span></label>
+          <input type="text" id="maintDesc" class="form-control" placeholder="e.g. Replaced guitar string B"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="maintBy">Done By</label>
+            <input type="text" id="maintBy" class="form-control" placeholder="Name"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="maintCost">Cost (optional)</label>
+            <input type="text" id="maintCost" class="form-control" placeholder="e.g. 150 ETB"/>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline btn-sm" onclick="NAV.closeModal('maintModal')">Close</button>
+        <button class="btn btn-primary btn-sm" id="maintSaveBtn">Add Log</button>
+      </div>
+    </div>
+  </div>
+
+    <script src="firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-sync.js"></script><script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/nav.js"></script>
+  <script>
+    let editingEquipId   = null;
+    let checkoutEquipId  = null;
+    let returnCheckoutId = null;
+    let maintEquipId     = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!AUTH.initProtectedPage()) return;
+      DB.seed();
+      CLOUD.init();
+      await DB.pullFromCloud();
+      NAV.init({ activePage: 'equipment', pageTitle: 'Equipment Manager' });
+      initEquipment();
+    });
+
+    function initEquipment() {
+      // Populate filters
+      const catFilter  = document.getElementById('categoryFilter');
+      const condFilter = document.getElementById('conditionFilter');
+      const equipCat   = document.getElementById('equipCategory');
+      const equipCond  = document.getElementById('equipCondition');
+      const retCond    = document.getElementById('returnCondition');
+
+      DB.CATEGORIES.forEach(c => {
+        [catFilter, equipCat].forEach(sel => { const o = document.createElement('option'); o.value = o.textContent = c; sel.appendChild(o); });
+      });
+      DB.CONDITIONS.forEach(c => {
+        [condFilter, equipCond, retCond].forEach(sel => { const o = document.createElement('option'); o.value = o.textContent = c; sel.appendChild(o); });
+      });
+
+      document.getElementById('equipSearch').addEventListener('input', renderEquipment);
+      document.getElementById('categoryFilter').addEventListener('change', renderEquipment);
+      document.getElementById('conditionFilter').addEventListener('change', renderEquipment);
+      document.getElementById('addEquipBtn').addEventListener('click', openAddModal);
+      document.getElementById('equipSaveBtn').addEventListener('click', saveEquip);
+      document.getElementById('checkoutSaveBtn').addEventListener('click', confirmCheckout);
+      document.getElementById('returnSaveBtn').addEventListener('click', confirmReturn);
+      document.getElementById('maintSaveBtn').addEventListener('click', addMaintLog);
+
+      [document.getElementById('equipModal'), document.getElementById('checkoutModal'), document.getElementById('returnModal'), document.getElementById('maintModal')].forEach(m => {
+        m.addEventListener('click', e => { if (e.target === m) NAV.closeModal(m.id); });
+      });
+
+      renderEquipment();
+    }
+
+    function renderEquipment() {
+      const q    = document.getElementById('equipSearch').value.toLowerCase();
+      const cat  = document.getElementById('categoryFilter').value;
+      const cond = document.getElementById('conditionFilter').value;
+
+      let items = DB.Equipment.all();
+      if (q)    items = items.filter(e => e.name.toLowerCase().includes(q) || (e.description||'').toLowerCase().includes(q));
+      if (cat)  items = items.filter(e => e.category === cat);
+      if (cond) items = items.filter(e => e.condition === cond);
+
+      const all = DB.Equipment.all();
+
+      // Summary
+      const onLoan   = DB.Checkouts.active().length;
+      const needsRepair = all.filter(e => e.condition === 'Needs Repair').length;
+      document.getElementById('equipSummary').innerHTML = `
+        <div class="stat-card"><div class="stat-icon primary"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><div class="stat-info"><div class="stat-value">${all.length}</div><div class="stat-label">Total Items</div></div></div>
+        <div class="stat-card"><div class="stat-icon success"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="stat-info"><div class="stat-value">${all.filter(e=>e.condition==='Good').length}</div><div class="stat-label">Good Condition</div></div></div>
+        <div class="stat-card"><div class="stat-icon warning"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div class="stat-info"><div class="stat-value">${onLoan}</div><div class="stat-label">On Loan</div></div></div>
+        <div class="stat-card"><div class="stat-icon" style="background:var(--clr-error-bg);color:var(--clr-error)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="stat-info"><div class="stat-value">${needsRepair}</div><div class="stat-label">Needs Repair</div></div></div>`;
+
+      // Active checkouts
+      const activeCheckouts = DB.Checkouts.active();
+      const checkoutWrap = document.getElementById('activeCheckoutsWrap');
+      if (activeCheckouts.length) {
+        checkoutWrap.innerHTML = `
+          <div class="card" style="border-left:4px solid var(--clr-info)">
+            <div class="card-title" style="margin-bottom:var(--sp-3)">Currently On Loan (${activeCheckouts.length})</div>
+            <div style="display:flex;flex-direction:column;gap:var(--sp-2)">
+              ${activeCheckouts.map(c => {
+                const item = DB.Equipment.byId(c.equipmentId);
+                return `
+                  <div style="display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:1px solid var(--clr-border-light)">
+                    <span style="flex:1;font-size:var(--fs-sm);font-weight:600">${item?.name || 'Unknown'}</span>
+                    <span style="font-size:var(--fs-xs);color:var(--clr-text-muted)">→ ${c.borrower}</span>
+                    <span style="font-size:var(--fs-xs);color:var(--clr-text-muted)">Due: ${c.expectedReturn || '—'}</span>
+                    <button class="btn btn-sm btn-outline" onclick="openReturnModal('${c.id}')" style="font-size:11px;padding:2px 10px">Return</button>
+                  </div>`;
+              }).join('')}
+            </div>
+          </div>`;
+      } else {
+        checkoutWrap.innerHTML = '';
+      }
+
+      // Equipment list
+      const list = document.getElementById('equipList');
+      if (!items.length) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+            <div class="empty-state-title">No equipment found</div>
+            <div class="empty-state-desc">Add items to start tracking your ministry's equipment inventory.</div>
+            <button class="btn btn-primary" onclick="openAddModal()">Add Item</button>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = items.map(item => {
+        const condClass = `condition-${item.condition.replace(/\s+/g,'-')}`;
+        return `
+          <div class="item-row">
+            <div class="item-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            </div>
+            <div class="item-info">
+              <div class="item-name">${item.name}</div>
+              <div class="item-meta">
+                <span>${item.category}</span>
+                <span>·</span>
+                <span>Qty: ${item.quantity}</span>
+                <span>·</span>
+                <span>${item.location || '—'}</span>
+                ${item.checkedOut ? `<span class="checkout-badge">📤 Checked out to ${item.borrower}</span>` : ''}
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap">
+              <span class="condition-badge ${condClass}">${item.condition}</span>
+            </div>
+            <div class="item-actions">
+              ${!item.checkedOut ? `<button class="btn btn-sm btn-outline" onclick="openCheckoutModal('${item.id}')" aria-label="Check out">Check Out</button>` : ''}
+              <button class="btn btn-icon btn-sm" onclick="openMaintModal('${item.id}')" title="Maintenance log" aria-label="Maintenance log">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              </button>
+              <button class="btn btn-icon btn-sm" onclick="openEditEquip('${item.id}')" title="Edit" aria-label="Edit item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="btn btn-icon btn-sm" onclick="deleteEquip('${item.id}')" title="Delete" aria-label="Delete item" style="color:var(--clr-error)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function openAddModal() {
+      editingEquipId = null;
+      document.getElementById('equipModalTitle').textContent = 'Add Equipment';
+      ['equipName','equipLocation','equipDesc'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('equipQty').value = '1';
+      document.getElementById('equipCategory').value = DB.CATEGORIES[0];
+      document.getElementById('equipCondition').value = 'Good';
+      NAV.openModal('equipModal');
+    }
+
+    function openEditEquip(id) {
+      const item = DB.Equipment.byId(id);
+      if (!item) return;
+      editingEquipId = id;
+      document.getElementById('equipModalTitle').textContent = 'Edit Equipment';
+      document.getElementById('equipName').value     = item.name || '';
+      document.getElementById('equipCategory').value = item.category || DB.CATEGORIES[0];
+      document.getElementById('equipCondition').value= item.condition || 'Good';
+      document.getElementById('equipQty').value      = item.quantity || 1;
+      document.getElementById('equipLocation').value  = item.location || '';
+      document.getElementById('equipDesc').value      = item.description || '';
+      NAV.openModal('equipModal');
+    }
+
+    function saveEquip() {
+      const name = document.getElementById('equipName').value.trim();
+      const qty  = parseInt(document.getElementById('equipQty').value) || 1;
+      if (!name) { NAV.toast('error', 'Name required'); document.getElementById('equipName').focus(); return; }
+      const data = {
+        name,
+        category:    document.getElementById('equipCategory').value,
+        condition:   document.getElementById('equipCondition').value,
+        quantity:    qty,
+        location:    document.getElementById('equipLocation').value.trim(),
+        description: document.getElementById('equipDesc').value.trim(),
+      };
+      if (editingEquipId) {
+        DB.Equipment.update(editingEquipId, data);
+        NAV.toast('success', 'Item updated', `"${name}" has been updated.`);
+      } else {
+        DB.Equipment.add(data);
+        NAV.toast('success', 'Item added', `"${name}" has been added to inventory.`);
+      }
+      NAV.closeModal('equipModal');
+      renderEquipment();
+    }
+
+    function deleteEquip(id) {
+      const item = DB.Equipment.byId(id);
+      NAV.confirm(`Delete "${item?.name}"? This cannot be undone.`, () => {
+        DB.Equipment.remove(id);
+        NAV.toast('success', 'Item deleted');
+        renderEquipment();
+      });
+    }
+
+    function openCheckoutModal(id) {
+      checkoutEquipId = id;
+      const item = DB.Equipment.byId(id);
+      document.getElementById('checkoutItemName').textContent = item?.name || '';
+      document.getElementById('checkoutBorrower').value = '';
+      document.getElementById('checkoutPurpose').value  = '';
+      const nextWeek = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+      document.getElementById('checkoutReturn').value = nextWeek;
+      NAV.openModal('checkoutModal');
+    }
+
+    function confirmCheckout() {
+      const borrower = document.getElementById('checkoutBorrower').value.trim();
+      if (!borrower) { NAV.toast('error', 'Borrower required', 'Please enter the borrower\'s name.'); return; }
+      DB.Checkouts.checkout({
+        equipmentId:    checkoutEquipId,
+        borrower,
+        purpose:        document.getElementById('checkoutPurpose').value.trim(),
+        expectedReturn: document.getElementById('checkoutReturn').value,
+      });
+      NAV.closeModal('checkoutModal');
+      NAV.toast('success', 'Item checked out', `${DB.Equipment.byId(checkoutEquipId)?.name} is now checked out to ${borrower}.`);
+      renderEquipment();
+    }
+
+    function openReturnModal(checkoutId) {
+      returnCheckoutId = checkoutId;
+      const co   = DB.Checkouts.all().find(c => c.id === checkoutId);
+      const item = DB.Equipment.byId(co?.equipmentId);
+      document.getElementById('returnItemName').textContent = item?.name || '';
+      document.getElementById('returnBorrower').textContent = co?.borrower || '';
+      document.getElementById('returnCondition').value = item?.condition || 'Good';
+      document.getElementById('returnNotes').value = '';
+      NAV.openModal('returnModal');
+    }
+
+    function confirmReturn() {
+      DB.Checkouts.returnItem(returnCheckoutId, document.getElementById('returnCondition').value, document.getElementById('returnNotes').value.trim());
+      NAV.closeModal('returnModal');
+      NAV.toast('success', 'Item returned', 'The item has been returned and inventory updated.');
+      renderEquipment();
+    }
+
+    function openMaintModal(id) {
+      maintEquipId = id;
+      const item = DB.Equipment.byId(id);
+      document.getElementById('maintItemName').textContent = item?.name || '';
+      document.getElementById('maintDesc').value = '';
+      document.getElementById('maintBy').value   = '';
+      document.getElementById('maintCost').value  = '';
+      const logs = item?.maintenanceLogs || [];
+      document.getElementById('maintLogList').innerHTML = logs.length
+        ? logs.map(l => `<div class="maint-log-item"><strong>${l.description}</strong><div style="color:var(--clr-text-muted);margin-top:2px">${l.by ? 'By: ' + l.by + ' · ' : ''}${l.cost ? 'Cost: ' + l.cost + ' · ' : ''}${NAV.formatDate(l.date)}</div></div>`).join('')
+        : '<div style="color:var(--clr-text-muted);font-size:var(--fs-xs);text-align:center;padding:var(--sp-4)">No maintenance records yet.</div>';
+      NAV.openModal('maintModal');
+    }
+
+    function addMaintLog() {
+      const desc = document.getElementById('maintDesc').value.trim();
+      if (!desc) { NAV.toast('error', 'Description required'); return; }
+      DB.Equipment.addMaintenanceLog(maintEquipId, {
+        description: desc,
+        by:   document.getElementById('maintBy').value.trim(),
+        cost: document.getElementById('maintCost').value.trim(),
+      });
+      NAV.toast('success', 'Log added', 'Maintenance record has been saved.');
+      NAV.closeModal('maintModal');
+      renderEquipment();
+    }
+  </script>
+</body>
+</html>
+
+

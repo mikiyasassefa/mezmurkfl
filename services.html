@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Services — ፈለገሕይወት መዝሙር ክፍል</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <style>
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: var(--sp-5);
+    }
+    .service-card {
+      background: var(--clr-surface);
+      border-radius: var(--r-xl);
+      border: 1px solid var(--clr-border-light);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .service-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+    .service-card-top {
+      background: var(--gradient-primary);
+      padding: var(--sp-5) var(--sp-5) var(--sp-4);
+      position: relative;
+    }
+    .service-card-actions {
+      position: absolute; top: var(--sp-3); right: var(--sp-3);
+      display: flex; gap: var(--sp-2);
+    }
+    .svc-btn {
+      width: 30px; height: 30px; border-radius: var(--r-md);
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .svc-btn-edit  { background: rgba(245,194,0,0.2); color: var(--clr-accent); }
+    .svc-btn-edit:hover  { background: rgba(245,194,0,0.4); }
+    .svc-btn-del   { background: rgba(220,53,69,0.2); color: #ff6b7a; }
+    .svc-btn-del:hover   { background: rgba(220,53,69,0.4); }
+
+    .service-name {
+      font-size: var(--fs-xl); font-weight: 800;
+      color: var(--clr-cream); padding-right: var(--sp-16);
+      font-family: var(--font-ethiopic);
+      line-height: 1.3;
+    }
+    .service-schedule {
+      display: inline-flex; align-items: center; gap: var(--sp-1);
+      margin-top: var(--sp-2); background: rgba(245,194,0,0.2);
+      color: var(--clr-accent); font-size: var(--fs-xs); font-weight: 600;
+      padding: 2px var(--sp-3); border-radius: var(--r-full);
+    }
+    .service-card-body { padding: var(--sp-4) var(--sp-5); }
+    .service-desc {
+      font-size: var(--fs-sm); color: var(--clr-text-muted);
+      line-height: 1.6; margin-bottom: var(--sp-4);
+      min-height: 40px;
+    }
+    .service-dept-badge {
+      display: inline-block;
+      background: var(--clr-primary-light);
+      color: var(--clr-primary);
+      font-size: var(--fs-xs); font-weight: 700;
+      padding: 2px var(--sp-3); border-radius: var(--r-full);
+      margin-bottom: var(--sp-4);
+      font-family: var(--font-ethiopic);
+    }
+    .service-members-label {
+      font-size: var(--fs-xs); font-weight: 700; color: var(--clr-text-muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: var(--sp-3);
+    }
+    .service-avatars {
+      display: flex; flex-wrap: wrap; gap: var(--sp-2); align-items: center;
+    }
+    .svc-avatar {
+      width: 36px; height: 36px; border-radius: var(--r-full);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: white;
+      border: 2px solid var(--clr-surface);
+      cursor: default; position: relative;
+    }
+    .svc-avatar[title]:hover::after {
+      content: attr(title);
+      position: absolute; bottom: calc(100% + 4px); left: 50%;
+      transform: translateX(-50%);
+      background: var(--clr-primary-dark); color: var(--clr-cream);
+      font-size: 10px; font-weight: 600; padding: 2px 8px;
+      border-radius: var(--r-sm); white-space: nowrap; z-index: 10;
+    }
+    .svc-more-badge {
+      width: 36px; height: 36px; border-radius: var(--r-full);
+      background: var(--clr-cream); color: var(--clr-text-muted);
+      font-size: 10px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--clr-border-light);
+    }
+
+    /* Student picker checkboxes */
+    .student-picker-wrap {
+      border: 1px solid var(--clr-border-light);
+      border-radius: var(--r-lg);
+      max-height: 240px; overflow-y: auto;
+      background: var(--clr-bg);
+    }
+    .student-class-group { padding: var(--sp-2) var(--sp-3); }
+    .student-class-group-label {
+      font-size: var(--fs-xs); font-weight: 700; color: var(--clr-primary);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      padding: var(--sp-2) 0 var(--sp-1);
+      display: flex; align-items: center; gap: var(--sp-2);
+      border-bottom: 1px solid var(--clr-border-light);
+      margin-bottom: var(--sp-2);
+      font-family: var(--font-ethiopic);
+    }
+    .student-check-pill {
+      display: flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-3);
+      border-radius: var(--r-lg);
+      cursor: pointer;
+      font-size: var(--fs-sm);
+      transition: background 0.15s;
+    }
+    .student-check-pill:hover { background: var(--clr-primary-light); }
+    .student-check-pill input[type="checkbox"] { accent-color: var(--clr-primary); width: 15px; height: 15px; }
+    .student-check-pill .sck-avatar {
+      width: 24px; height: 24px; border-radius: var(--r-full);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 800; color: white; flex-shrink: 0;
+    }
+    @media (max-width: 600px) {
+      .services-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div id="appShell"></div>
+  <div id="pageContent" style="display:none">
+
+    <!-- Page header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--sp-6);flex-wrap:wrap;gap:var(--sp-3)">
+      <div>
+        <h2 style="font-size:var(--fs-2xl);font-weight:800;color:var(--clr-primary)">Ministry Services</h2>
+        <p style="color:var(--clr-text-muted);font-size:var(--fs-sm);margin-top:var(--sp-1)">Track which department and members are responsible for each service</p>
+      </div>
+      <button class="btn btn-primary" id="addServiceBtn" onclick="openAddModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Service
+      </button>
+    </div>
+
+    <!-- Services grid -->
+    <div id="servicesGrid">
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="empty-state-title">No Services Yet</div>
+        <div class="empty-state-desc">Click "Add Service" to create the first ministry service and assign members.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Service Modal -->
+  <div class="modal-overlay" id="serviceModal" role="dialog" aria-modal="true" aria-labelledby="serviceModalTitle">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3 id="serviceModalTitle" class="modal-title">Add Service</h3>
+        <button class="modal-close" onclick="NAV.closeModal('serviceModal')" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" style="max-height:70vh;overflow-y:auto">
+        <div class="form-group">
+          <label class="form-label" for="svcName">Service Name <span class="required">*</span></label>
+          <input type="text" id="svcName" class="form-control" placeholder="e.g. ቅዳሴ — Sunday Divine Liturgy"/>
+          <div class="form-error hidden" id="svcNameErr">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+            <span>Service name is required.</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="svcDesc">Description <span style="font-weight:400;color:var(--clr-text-muted)">(optional)</span></label>
+          <textarea id="svcDesc" class="form-control" rows="2" placeholder="Brief description of this service..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="svcSchedule">Schedule <span style="font-weight:400;color:var(--clr-text-muted)">(optional)</span></label>
+            <input type="text" id="svcSchedule" class="form-control" placeholder="e.g. Every Sunday 7:00 AM"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="svcDept">Primary Department <span class="required">*</span></label>
+            <select id="svcDept" class="form-control" onchange="loadStudentPicker()">
+              <option value="">— Select Department —</option>
+            </select>
+            <div class="form-error hidden" id="svcDeptErr">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+              <span>Please select a department.</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            Assigned Members
+            <span style="font-weight:400;color:var(--clr-text-muted);font-size:var(--fs-xs)"> — select all students involved in this service</span>
+          </label>
+          <div class="student-picker-wrap" id="studentPicker">
+            <div style="padding:var(--sp-5);text-align:center;color:var(--clr-text-muted);font-size:var(--fs-sm)">
+              Select a department above to load members
+            </div>
+          </div>
+          <div style="font-size:var(--fs-xs);color:var(--clr-text-muted);margin-top:var(--sp-2)">
+            <span id="selectedCount">0 members selected</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="NAV.closeModal('serviceModal')">Cancel</button>
+        <button class="btn btn-primary" id="saveServiceBtn" onclick="saveService()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+          Save Service
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-sync.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/nav.js"></script>
+  <script>
+    let editingServiceId = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!AUTH.initProtectedPage()) return;
+      DB.seed();
+      CLOUD.init();
+      await CLOUD.pull();
+      NAV.init({ activePage: 'services', pageTitle: 'Ministry Services' });
+      initServices();
+    });
+
+    function initServices() {
+      const deptSel = document.getElementById('svcDept');
+      DB.CLASSES.forEach(c => {
+        const o = document.createElement('option');
+        o.value = o.textContent = c;
+        deptSel.appendChild(o);
+      });
+      renderServices();
+    }
+
+    /* ── Render services grid ────────────────── */
+    function renderServices() {
+      const services = DB.Services.all();
+      const grid = document.getElementById('servicesGrid');
+      if (!services.length) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1">
+            <div class="empty-state-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="empty-state-title">No Services Yet</div>
+            <div class="empty-state-desc">Click "Add Service" to create the first ministry service.</div>
+          </div>`;
+        return;
+      }
+      grid.innerHTML = services.map(renderServiceCard).join('');
+    }
+
+    function renderServiceCard(svc) {
+      const students = svc.studentIds
+        .map(id => DB.Students.byId(id))
+        .filter(Boolean);
+
+      const maxShow = 6;
+      const shown = students.slice(0, maxShow);
+      const extra  = students.length - maxShow;
+
+      const avatarHtml = shown.map(s => {
+        const color = NAV.avatarColor(s.name);
+        const initials = NAV.getInitials(s.name);
+        return `<div class="svc-avatar" style="background:${color}" title="${s.name}">${initials}</div>`;
+      }).join('') + (extra > 0 ? `<div class="svc-more-badge">+${extra}</div>` : '');
+
+      const scheduleHtml = svc.schedule ? `
+        <div class="service-schedule">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          ${svc.schedule}
+        </div>` : '';
+
+      return `
+        <div class="service-card">
+          <div class="service-card-top">
+            <div class="service-card-actions">
+              <button class="svc-btn svc-btn-edit" onclick="openEditModal('${svc.id}')" title="Edit service">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="svc-btn svc-btn-del" onclick="deleteService('${svc.id}')" title="Delete service">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </button>
+            </div>
+            <div class="service-name">${svc.name}</div>
+            ${scheduleHtml}
+          </div>
+          <div class="service-card-body">
+            ${svc.description ? `<div class="service-desc">${svc.description}</div>` : '<div class="service-desc" style="color:transparent">—</div>'}
+            <div class="service-dept-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              ${svc.department}
+            </div>
+            <div class="service-members-label">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Assigned Members (${students.length})
+            </div>
+            <div class="service-avatars">
+              ${students.length ? avatarHtml : '<span style="font-size:var(--fs-xs);color:var(--clr-text-muted)">No members assigned yet</span>'}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    /* ── Modal open helpers ───────────────────── */
+    function openAddModal() {
+      editingServiceId = null;
+      document.getElementById('serviceModalTitle').textContent = 'Add Service';
+      document.getElementById('svcName').value = '';
+      document.getElementById('svcDesc').value = '';
+      document.getElementById('svcSchedule').value = '';
+      document.getElementById('svcDept').value = '';
+      document.getElementById('studentPicker').innerHTML =
+        '<div style="padding:var(--sp-5);text-align:center;color:var(--clr-text-muted);font-size:var(--fs-sm)">Select a department above to load members</div>';
+      document.getElementById('selectedCount').textContent = '0 members selected';
+      document.getElementById('svcNameErr').classList.add('hidden');
+      document.getElementById('svcDeptErr').classList.add('hidden');
+      NAV.openModal('serviceModal');
+      document.getElementById('svcName').focus();
+    }
+
+    function openEditModal(id) {
+      const svc = DB.Services.byId(id);
+      if (!svc) return;
+      editingServiceId = id;
+      document.getElementById('serviceModalTitle').textContent = 'Edit Service';
+      document.getElementById('svcName').value     = svc.name;
+      document.getElementById('svcDesc').value     = svc.description || '';
+      document.getElementById('svcSchedule').value = svc.schedule || '';
+      document.getElementById('svcDept').value     = svc.department;
+      document.getElementById('svcNameErr').classList.add('hidden');
+      document.getElementById('svcDeptErr').classList.add('hidden');
+      loadStudentPicker(svc.studentIds);
+      NAV.openModal('serviceModal');
+    }
+
+    /* ── Student picker ───────────────────────── */
+    function loadStudentPicker(preSelected = []) {
+      const dept = document.getElementById('svcDept').value;
+      const picker = document.getElementById('studentPicker');
+
+      if (!dept) {
+        picker.innerHTML = '<div style="padding:var(--sp-5);text-align:center;color:var(--clr-text-muted);font-size:var(--fs-sm)">Select a department above to load members</div>';
+        updateSelectedCount();
+        return;
+      }
+
+      // Show all students in selected class
+      const students = DB.Students.byClass(dept);
+      if (!students.length) {
+        picker.innerHTML = '<div style="padding:var(--sp-5);text-align:center;color:var(--clr-text-muted);font-size:var(--fs-sm)">No students in this class yet</div>';
+        updateSelectedCount();
+        return;
+      }
+
+      picker.innerHTML = `
+        <div class="student-class-group">
+          <div class="student-class-group-label">${dept}</div>
+          ${students.map(s => {
+            const color = NAV.avatarColor(s.name);
+            const initials = NAV.getInitials(s.name);
+            const checked = preSelected.includes(s.id) ? 'checked' : '';
+            return `
+              <label class="student-check-pill">
+                <input type="checkbox" name="svcStudent" value="${s.id}" ${checked} onchange="updateSelectedCount()"/>
+                <div class="sck-avatar" style="background:${color}">${initials}</div>
+                <span>${s.name}</span>
+                <span style="margin-left:auto;font-size:var(--fs-xs);color:var(--clr-text-muted)">Age ${s.age}</span>
+              </label>`;
+          }).join('')}
+        </div>`;
+
+      updateSelectedCount();
+    }
+
+    function updateSelectedCount() {
+      const checked = document.querySelectorAll('input[name="svcStudent"]:checked').length;
+      document.getElementById('selectedCount').textContent =
+        checked === 0 ? 'No members selected' : `${checked} member${checked !== 1 ? 's' : ''} selected`;
+    }
+
+    /* ── Save service ─────────────────────────── */
+    function saveService() {
+      const name  = document.getElementById('svcName').value.trim();
+      const dept  = document.getElementById('svcDept').value;
+      let invalid = false;
+
+      document.getElementById('svcNameErr').classList.toggle('hidden', name.length >= 2);
+      document.getElementById('svcDeptErr').classList.toggle('hidden', !!dept);
+      if (name.length < 2) { document.getElementById('svcName').classList.add('error'); invalid = true; }
+      if (!dept)            { document.getElementById('svcDept').classList.add('error'); invalid = true; }
+      if (invalid) return;
+
+      const studentIds = [...document.querySelectorAll('input[name="svcStudent"]:checked')].map(cb => cb.value);
+      const data = {
+        name,
+        description: document.getElementById('svcDesc').value.trim(),
+        schedule:    document.getElementById('svcSchedule').value.trim(),
+        department:  dept,
+        studentIds
+      };
+
+      const btn = document.getElementById('saveServiceBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 0.8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Saving…';
+
+      setTimeout(() => {
+        if (editingServiceId) {
+          DB.Services.update(editingServiceId, data);
+          NAV.toast('success', 'Service Updated!', `${name} has been updated.`);
+        } else {
+          DB.Services.add(data);
+          NAV.toast('success', 'Service Added!', `${name} is now live.`);
+        }
+        NAV.closeModal('serviceModal');
+        renderServices();
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg> Save Service';
+      }, 300);
+    }
+
+    /* ── Delete service ───────────────────────── */
+    function deleteService(id) {
+      const svc = DB.Services.byId(id);
+      if (!svc) return;
+      NAV.openConfirm({
+        title: 'Delete Service',
+        message: `Are you sure you want to delete "${svc.name}"? This cannot be undone.`,
+        confirmLabel: 'Delete',
+        confirmClass: 'btn-danger',
+        onConfirm: () => {
+          DB.Services.remove(id);
+          NAV.toast('success', 'Deleted', `${svc.name} has been removed.`);
+          renderServices();
+        }
+      });
+    }
+  </script>
+  <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+</body>
+</html>

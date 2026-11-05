@@ -1,10 +1,10 @@
-/**
- * data.js — Data access layer for ፈለገሕይወት መዝሙር ክፍል
+﻿/**
+ * data.js â€” Data access layer for áˆáˆˆáŒˆáˆ•á‹­á‹ˆá‰µ áˆ˜á‹áˆ™áˆ­ áŠ­ááˆ
  * Uses localStorage for MVP. Swap this module for Firebase/REST calls in production.
  */
 
 const DB = (() => {
-  /* ── Keys ─────────────────────────────────── */
+  /* â”€â”€ Keys â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const KEYS = {
     students:   'fmk_students',
     attendance: 'fmk_attendance',
@@ -12,24 +12,24 @@ const DB = (() => {
     equipment:  'fmk_equipment',
     checkouts:  'fmk_checkouts',
     services:   'fmk_services',
-    seeded:     'fmk_seeded_v4'
+    seeded:     'fmk_seeded_v5'
   };
 
-  /* ── Classes ──────────────────────────────── */
+  /* â”€â”€ Classes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const CLASSES = [
-    'ዝማሬ 4 ሀ',
-    'ዝማሬ 4 ለ',
-    'ዝማሬ 4 ሐ',
-    'ዝማሬ 1',
-    'ዝማሬ 3',
-    'ሀዋርያ ተልዕኮ ሀ',
-    'ሀዋርያ ተልዕኮ ለ'
+    'á‹áˆ›áˆ¬ 4 áˆ€',
+    'á‹áˆ›áˆ¬ 4 áˆˆ',
+    'á‹áˆ›áˆ¬ 4 áˆ',
+    'á‹áˆ›áˆ¬ 1',
+    'á‹áˆ›áˆ¬ 3',
+    'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆ€',
+    'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆˆ'
   ];
 
   const CONDITIONS  = ['Good', 'Fair', 'Needs Repair', 'Retired'];
   const CATEGORIES  = ['Musical Instrument', 'Audio/Visual', 'Printed Material', 'Furniture', 'Other'];
 
-  /* ── Generic helpers ──────────────────────── */
+  /* â”€â”€ Generic helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   function _get(key) {
     try { return JSON.parse(localStorage.getItem(key)) || []; }
     catch { return []; }
@@ -46,7 +46,7 @@ const DB = (() => {
   }
   function _now() { return new Date().toISOString(); }
 
-  /* ── Students CRUD ────────────────────────── */
+  /* â”€â”€ Students CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const Students = {
     all() { return _get(KEYS.students); },
     byId(id) { return this.all().find(s => s.id === id) || null; },
@@ -81,7 +81,7 @@ const DB = (() => {
     }
   };
 
-  /* ── Attendance CRUD ──────────────────────── */
+  /* â”€â”€ Attendance CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const Attendance = {
     all() { return _get(KEYS.attendance); },
     /**
@@ -128,7 +128,7 @@ const DB = (() => {
     }
   };
 
-  /* ── Hymns CRUD ───────────────────────────── */
+  /* â”€â”€ Hymns CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const Hymns = {
     all() { return _get(KEYS.hymns); },
     byId(id) { return this.all().find(h => h.id === id) || null; },
@@ -158,7 +158,7 @@ const DB = (() => {
     }
   };
 
-  /* ── Equipment CRUD ───────────────────────── */
+  /* â”€â”€ Equipment CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const Equipment = {
     all() { return _get(KEYS.equipment); },
     byId(id) { return this.all().find(e => e.id === id) || null; },
@@ -186,7 +186,7 @@ const DB = (() => {
     }
   };
 
-  /* ── Checkouts CRUD ───────────────────────── */
+  /* â”€â”€ Checkouts CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   const Checkouts = {
     all() { return _get(KEYS.checkouts); },
     active() { return this.all().filter(c => !c.returnedAt); },
@@ -210,51 +210,51 @@ const DB = (() => {
     }
   };
 
-  /* ── Seed Data ────────────────────────────── */
+  /* â”€â”€ Seed Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   function seed() {
     if (localStorage.getItem(KEYS.seeded)) return;
 
-    /* ── Students ── */
+    /* â”€â”€ Students â”€â”€ */
     const studentData = [
-      { name: 'Miriam Tesfaye',      age: 14, class: 'ዝማሬ 4 ሀ', parentName: 'Tesfaye Alemu',   parentPhone: '+251911001001', parentEmail: 'tesfaye@email.com', enrollDate: '2024-01-15', notes: 'Strong lead vocalist' },
-      { name: 'Bethlehem Girma',     age: 13, class: 'ዝማሬ 4 ሀ', parentName: 'Girma Kebede',    parentPhone: '+251911001002', parentEmail: '', enrollDate: '2024-02-01', notes: '' },
-      { name: 'Yohannes Hailu',      age: 15, class: 'ዝማሬ 4 ሀ', parentName: 'Hailu Mekonen',   parentPhone: '+251911001003', parentEmail: 'hailu@email.com', enrollDate: '2024-01-20', notes: '' },
-      { name: 'Selam Desta',         age: 12, class: 'ዝማሬ 4 ሀ', parentName: 'Desta Worku',     parentPhone: '+251911001004', parentEmail: '', enrollDate: '2024-03-10', notes: 'Shy but talented' },
-      { name: 'Dawit Bekele',        age: 14, class: 'ዝማሬ 4 ሀ', parentName: 'Bekele Negash',   parentPhone: '+251911001005', parentEmail: '', enrollDate: '2024-01-15', notes: '' },
-      { name: 'Sara Mulugeta',       age: 13, class: 'ዝማሬ 4 ለ', parentName: 'Mulugeta Teklu',  parentPhone: '+251911002001', parentEmail: '', enrollDate: '2024-02-10', notes: '' },
-      { name: 'Henok Tadesse',       age: 15, class: 'ዝማሬ 4 ለ', parentName: 'Tadesse Welde',   parentPhone: '+251911002002', parentEmail: '', enrollDate: '2024-01-28', notes: '' },
-      { name: 'Meron Alemu',         age: 12, class: 'ዝማሬ 4 ለ', parentName: 'Alemu Biruk',     parentPhone: '+251911002003', parentEmail: 'alemu.b@email.com', enrollDate: '2024-03-05', notes: '' },
-      { name: 'Natnael Yimer',       age: 14, class: 'ዝማሬ 4 ለ', parentName: 'Yimer Zewdu',     parentPhone: '+251911002004', parentEmail: '', enrollDate: '2024-02-20', notes: '' },
-      { name: 'Lidya Tesfaye',       age: 13, class: 'ዝማሬ 4 ለ', parentName: 'Tesfaye Girma',   parentPhone: '+251911002005', parentEmail: '', enrollDate: '2024-03-15', notes: '' },
-      { name: 'Abel Kebede',         age: 14, class: 'ዝማሬ 4 ሐ', parentName: 'Kebede Lemma',    parentPhone: '+251911003001', parentEmail: '', enrollDate: '2024-01-10', notes: '' },
-      { name: 'Hiwot Girma',         age: 13, class: 'ዝማሬ 4 ሐ', parentName: 'Girma Tesfaw',    parentPhone: '+251911003002', parentEmail: '', enrollDate: '2024-02-08', notes: '' },
-      { name: 'Robel Hailu',         age: 15, class: 'ዝማሬ 4 ሐ', parentName: 'Hailu Worku',     parentPhone: '+251911003003', parentEmail: '', enrollDate: '2024-01-22', notes: '' },
-      { name: 'Tigist Alemu',        age: 12, class: 'ዝማሬ 4 ሐ', parentName: 'Alemu Dagne',     parentPhone: '+251911003004', parentEmail: 'dagne.a@email.com', enrollDate: '2024-03-12', notes: 'Needs extra practice' },
-      { name: 'Yared Bekele',        age: 14, class: 'ዝማሬ 4 ሐ', parentName: 'Bekele Girma',    parentPhone: '+251911003005', parentEmail: '', enrollDate: '2024-02-14', notes: '' },
-      { name: 'Bezawit Tadesse',     age: 8,  class: 'ዝማሬ 1',   parentName: 'Tadesse Mamo',    parentPhone: '+251911004001', parentEmail: '', enrollDate: '2024-04-01', notes: 'First-year student' },
-      { name: 'Kirubel Tesfaye',     age: 7,  class: 'ዝማሬ 1',   parentName: 'Tesfaye Kiros',   parentPhone: '+251911004002', parentEmail: '', enrollDate: '2024-04-01', notes: '' },
-      { name: 'Mahlet Alemu',        age: 8,  class: 'ዝማሬ 1',   parentName: 'Alemu Tesfaye',   parentPhone: '+251911004003', parentEmail: '', enrollDate: '2024-04-01', notes: 'Very enthusiastic' },
-      { name: 'Binyam Yared',        age: 9,  class: 'ዝማሬ 1',   parentName: 'Yared Hailu',     parentPhone: '+251911004004', parentEmail: 'yared.h@email.com', enrollDate: '2024-04-05', notes: '' },
-      { name: 'Fiyori Teklu',        age: 7,  class: 'ዝማሬ 1',   parentName: 'Teklu Negash',    parentPhone: '+251911004005', parentEmail: '', enrollDate: '2024-04-05', notes: '' },
-      { name: 'Eyerusalem Girma',    age: 11, class: 'ዝማሬ 3',   parentName: 'Girma Welde',     parentPhone: '+251911005001', parentEmail: '', enrollDate: '2024-01-18', notes: '' },
-      { name: 'Mikael Desta',        age: 10, class: 'ዝማሬ 3',   parentName: 'Desta Hailu',     parentPhone: '+251911005002', parentEmail: '', enrollDate: '2024-01-18', notes: '' },
-      { name: 'Selamawit Kebede',    age: 11, class: 'ዝማሬ 3',   parentName: 'Kebede Abebe',    parentPhone: '+251911005003', parentEmail: '', enrollDate: '2024-02-05', notes: '' },
-      { name: 'Daniel Tesfaye',      age: 10, class: 'ዝማሬ 3',   parentName: 'Tesfaye Daniel',  parentPhone: '+251911005004', parentEmail: 'tesfaye.d@email.com', enrollDate: '2024-02-10', notes: '' },
-      { name: 'Yordanos Mekonen',    age: 11, class: 'ዝማሬ 3',   parentName: 'Mekonen Haile',   parentPhone: '+251911005005', parentEmail: '', enrollDate: '2024-03-01', notes: '' },
-      { name: 'Fasika Lemma',        age: 16, class: 'ሀዋርያ ተልዕኮ ሀ', parentName: 'Lemma Tesfaye',  parentPhone: '+251911006001', parentEmail: '', enrollDate: '2023-09-01', notes: 'Section leader' },
-      { name: 'Bereket Hailu',       age: 17, class: 'ሀዋርያ ተልዕኮ ሀ', parentName: 'Hailu Alemu',    parentPhone: '+251911006002', parentEmail: '', enrollDate: '2023-09-01', notes: '' },
-      { name: 'Tsion Girma',         age: 16, class: 'ሀዋርያ ተልዕኮ ሀ', parentName: 'Girma Mamo',     parentPhone: '+251911006003', parentEmail: 'girma.m@email.com', enrollDate: '2023-09-15', notes: '' },
-      { name: 'Semere Bekele',       age: 18, class: 'ሀዋርያ ተልዕኮ ሀ', parentName: 'Bekele Tesfaw',  parentPhone: '+251911006004', parentEmail: '', enrollDate: '2023-09-01', notes: '' },
-      { name: 'Hana Tadesse',        age: 15, class: 'ሀዋርያ ተልዕኮ ሀ', parentName: 'Tadesse Kiros',  parentPhone: '+251911006005', parentEmail: '', enrollDate: '2024-01-10', notes: '' },
-      { name: 'Yonas Tesfaye',       age: 17, class: 'ሀዋርያ ተልዕኮ ለ', parentName: 'Tesfaye Mamo',   parentPhone: '+251911007001', parentEmail: '', enrollDate: '2023-09-01', notes: 'Assists with teaching' },
-      { name: 'Mekdes Alemu',        age: 16, class: 'ሀዋርያ ተልዕኮ ለ', parentName: 'Alemu Girma',    parentPhone: '+251911007002', parentEmail: '', enrollDate: '2023-09-10', notes: '' },
-      { name: 'Tekeste Hailu',       age: 18, class: 'ሀዋርያ ተልዕኮ ለ', parentName: 'Hailu Tekle',    parentPhone: '+251911007003', parentEmail: '', enrollDate: '2023-09-01', notes: '' },
-      { name: 'Lidya Kebede',        age: 15, class: 'ሀዋርያ ተልዕኮ ለ', parentName: 'Kebede Mamo',    parentPhone: '+251911007004', parentEmail: '', enrollDate: '2024-01-20', notes: '' },
-      { name: 'Amanuel Desta',       age: 16, class: 'ሀዋርያ ተልዕኮ ለ', parentName: 'Desta Alemu',    parentPhone: '+251911007005', parentEmail: 'desta.a@email.com', enrollDate: '2024-02-01', notes: '' },
+      { name: 'Miriam Tesfaye',      age: 14, class: 'á‹áˆ›áˆ¬ 4 áˆ€', parentName: 'Tesfaye Alemu',   parentPhone: '+251911001001', parentEmail: 'tesfaye@email.com', enrollDate: '2024-01-15', notes: 'Strong lead vocalist' },
+      { name: 'Bethlehem Girma',     age: 13, class: 'á‹áˆ›áˆ¬ 4 áˆ€', parentName: 'Girma Kebede',    parentPhone: '+251911001002', parentEmail: '', enrollDate: '2024-02-01', notes: '' },
+      { name: 'Yohannes Hailu',      age: 15, class: 'á‹áˆ›áˆ¬ 4 áˆ€', parentName: 'Hailu Mekonen',   parentPhone: '+251911001003', parentEmail: 'hailu@email.com', enrollDate: '2024-01-20', notes: '' },
+      { name: 'Selam Desta',         age: 12, class: 'á‹áˆ›áˆ¬ 4 áˆ€', parentName: 'Desta Worku',     parentPhone: '+251911001004', parentEmail: '', enrollDate: '2024-03-10', notes: 'Shy but talented' },
+      { name: 'Dawit Bekele',        age: 14, class: 'á‹áˆ›áˆ¬ 4 áˆ€', parentName: 'Bekele Negash',   parentPhone: '+251911001005', parentEmail: '', enrollDate: '2024-01-15', notes: '' },
+      { name: 'Sara Mulugeta',       age: 13, class: 'á‹áˆ›áˆ¬ 4 áˆˆ', parentName: 'Mulugeta Teklu',  parentPhone: '+251911002001', parentEmail: '', enrollDate: '2024-02-10', notes: '' },
+      { name: 'Henok Tadesse',       age: 15, class: 'á‹áˆ›áˆ¬ 4 áˆˆ', parentName: 'Tadesse Welde',   parentPhone: '+251911002002', parentEmail: '', enrollDate: '2024-01-28', notes: '' },
+      { name: 'Meron Alemu',         age: 12, class: 'á‹áˆ›áˆ¬ 4 áˆˆ', parentName: 'Alemu Biruk',     parentPhone: '+251911002003', parentEmail: 'alemu.b@email.com', enrollDate: '2024-03-05', notes: '' },
+      { name: 'Natnael Yimer',       age: 14, class: 'á‹áˆ›áˆ¬ 4 áˆˆ', parentName: 'Yimer Zewdu',     parentPhone: '+251911002004', parentEmail: '', enrollDate: '2024-02-20', notes: '' },
+      { name: 'Lidya Tesfaye',       age: 13, class: 'á‹áˆ›áˆ¬ 4 áˆˆ', parentName: 'Tesfaye Girma',   parentPhone: '+251911002005', parentEmail: '', enrollDate: '2024-03-15', notes: '' },
+      { name: 'Abel Kebede',         age: 14, class: 'á‹áˆ›áˆ¬ 4 áˆ', parentName: 'Kebede Lemma',    parentPhone: '+251911003001', parentEmail: '', enrollDate: '2024-01-10', notes: '' },
+      { name: 'Hiwot Girma',         age: 13, class: 'á‹áˆ›áˆ¬ 4 áˆ', parentName: 'Girma Tesfaw',    parentPhone: '+251911003002', parentEmail: '', enrollDate: '2024-02-08', notes: '' },
+      { name: 'Robel Hailu',         age: 15, class: 'á‹áˆ›áˆ¬ 4 áˆ', parentName: 'Hailu Worku',     parentPhone: '+251911003003', parentEmail: '', enrollDate: '2024-01-22', notes: '' },
+      { name: 'Tigist Alemu',        age: 12, class: 'á‹áˆ›áˆ¬ 4 áˆ', parentName: 'Alemu Dagne',     parentPhone: '+251911003004', parentEmail: 'dagne.a@email.com', enrollDate: '2024-03-12', notes: 'Needs extra practice' },
+      { name: 'Yared Bekele',        age: 14, class: 'á‹áˆ›áˆ¬ 4 áˆ', parentName: 'Bekele Girma',    parentPhone: '+251911003005', parentEmail: '', enrollDate: '2024-02-14', notes: '' },
+      { name: 'Bezawit Tadesse',     age: 8,  class: 'á‹áˆ›áˆ¬ 1',   parentName: 'Tadesse Mamo',    parentPhone: '+251911004001', parentEmail: '', enrollDate: '2024-04-01', notes: 'First-year student' },
+      { name: 'Kirubel Tesfaye',     age: 7,  class: 'á‹áˆ›áˆ¬ 1',   parentName: 'Tesfaye Kiros',   parentPhone: '+251911004002', parentEmail: '', enrollDate: '2024-04-01', notes: '' },
+      { name: 'Mahlet Alemu',        age: 8,  class: 'á‹áˆ›áˆ¬ 1',   parentName: 'Alemu Tesfaye',   parentPhone: '+251911004003', parentEmail: '', enrollDate: '2024-04-01', notes: 'Very enthusiastic' },
+      { name: 'Binyam Yared',        age: 9,  class: 'á‹áˆ›áˆ¬ 1',   parentName: 'Yared Hailu',     parentPhone: '+251911004004', parentEmail: 'yared.h@email.com', enrollDate: '2024-04-05', notes: '' },
+      { name: 'Fiyori Teklu',        age: 7,  class: 'á‹áˆ›áˆ¬ 1',   parentName: 'Teklu Negash',    parentPhone: '+251911004005', parentEmail: '', enrollDate: '2024-04-05', notes: '' },
+      { name: 'Eyerusalem Girma',    age: 11, class: 'á‹áˆ›áˆ¬ 3',   parentName: 'Girma Welde',     parentPhone: '+251911005001', parentEmail: '', enrollDate: '2024-01-18', notes: '' },
+      { name: 'Mikael Desta',        age: 10, class: 'á‹áˆ›áˆ¬ 3',   parentName: 'Desta Hailu',     parentPhone: '+251911005002', parentEmail: '', enrollDate: '2024-01-18', notes: '' },
+      { name: 'Selamawit Kebede',    age: 11, class: 'á‹áˆ›áˆ¬ 3',   parentName: 'Kebede Abebe',    parentPhone: '+251911005003', parentEmail: '', enrollDate: '2024-02-05', notes: '' },
+      { name: 'Daniel Tesfaye',      age: 10, class: 'á‹áˆ›áˆ¬ 3',   parentName: 'Tesfaye Daniel',  parentPhone: '+251911005004', parentEmail: 'tesfaye.d@email.com', enrollDate: '2024-02-10', notes: '' },
+      { name: 'Yordanos Mekonen',    age: 11, class: 'á‹áˆ›áˆ¬ 3',   parentName: 'Mekonen Haile',   parentPhone: '+251911005005', parentEmail: '', enrollDate: '2024-03-01', notes: '' },
+      { name: 'Fasika Lemma',        age: 16, class: 'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆ€', parentName: 'Lemma Tesfaye',  parentPhone: '+251911006001', parentEmail: '', enrollDate: '2023-09-01', notes: 'Section leader' },
+      { name: 'Bereket Hailu',       age: 17, class: 'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆ€', parentName: 'Hailu Alemu',    parentPhone: '+251911006002', parentEmail: '', enrollDate: '2023-09-01', notes: '' },
+      { name: 'Tsion Girma',         age: 16, class: 'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆ€', parentName: 'Girma Mamo',     parentPhone: '+251911006003', parentEmail: 'girma.m@email.com', enrollDate: '2023-09-15', notes: '' },
+      { name: 'Semere Bekele',       age: 18, class: 'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆ€', parentName: 'Bekele Tesfaw',  parentPhone: '+251911006004', parentEmail: '', enrollDate: '2023-09-01', notes: '' },
+      { name: 'Hana Tadesse',        age: 15, class: 'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆ€', parentName: 'Tadesse Kiros',  parentPhone: '+251911006005', parentEmail: '', enrollDate: '2024-01-10', notes: '' },
+      { name: 'Yonas Tesfaye',       age: 17, class: 'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆˆ', parentName: 'Tesfaye Mamo',   parentPhone: '+251911007001', parentEmail: '', enrollDate: '2023-09-01', notes: 'Assists with teaching' },
+      { name: 'Mekdes Alemu',        age: 16, class: 'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆˆ', parentName: 'Alemu Girma',    parentPhone: '+251911007002', parentEmail: '', enrollDate: '2023-09-10', notes: '' },
+      { name: 'Tekeste Hailu',       age: 18, class: 'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆˆ', parentName: 'Hailu Tekle',    parentPhone: '+251911007003', parentEmail: '', enrollDate: '2023-09-01', notes: '' },
+      { name: 'Lidya Kebede',        age: 15, class: 'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆˆ', parentName: 'Kebede Mamo',    parentPhone: '+251911007004', parentEmail: '', enrollDate: '2024-01-20', notes: '' },
+      { name: 'Amanuel Desta',       age: 16, class: 'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆˆ', parentName: 'Desta Alemu',    parentPhone: '+251911007005', parentEmail: 'desta.a@email.com', enrollDate: '2024-02-01', notes: '' },
     ];
     studentData.forEach(s => Students.add(s));
 
-    /* ── Attendance — 8 past Sundays ── */
+    /* â”€â”€ Attendance â€” 8 past Sundays â”€â”€ */
     const allStudents = Students.all();
     const statuses    = ['present', 'present', 'present', 'present', 'present', 'absent', 'excused'];
     for (let w = 7; w >= 0; w--) {
@@ -272,18 +272,18 @@ const DB = (() => {
       });
     }
 
-    /* ── Equipment ── */
+    /* â”€â”€ Equipment â”€â”€ */
     const equipData = [
       { name: 'Keyboard / Piano', category: 'Musical Instrument', quantity: 1, condition: 'Good', location: 'Main Hall', description: 'Casio CT-X700, 61 keys', checkedOut: false, borrower: null },
       { name: 'Acoustic Guitar', category: 'Musical Instrument', quantity: 2, condition: 'Good', location: 'Storage Room A', description: 'Classical nylon-string guitars', checkedOut: false, borrower: null },
       { name: 'Tambourine', category: 'Musical Instrument', quantity: 5, condition: 'Fair', location: 'Storage Room A', description: 'Various sizes', checkedOut: false, borrower: null },
-      { name: 'Sistrum (ስስታ)', category: 'Musical Instrument', quantity: 8, condition: 'Good', location: 'Storage Room A', description: 'Traditional Ethiopian percussion', checkedOut: false, borrower: null },
-      { name: 'Worship Drum (ከበሮ)', category: 'Musical Instrument', quantity: 3, condition: 'Good', location: 'Main Hall', description: 'Large Ethiopian ceremonial drums', checkedOut: false, borrower: null },
+      { name: 'Sistrum (áˆµáˆµá‰³)', category: 'Musical Instrument', quantity: 8, condition: 'Good', location: 'Storage Room A', description: 'Traditional Ethiopian percussion', checkedOut: false, borrower: null },
+      { name: 'Worship Drum (áŠ¨á‰ áˆ®)', category: 'Musical Instrument', quantity: 3, condition: 'Good', location: 'Main Hall', description: 'Large Ethiopian ceremonial drums', checkedOut: false, borrower: null },
       { name: 'Wireless Microphone', category: 'Audio/Visual', quantity: 2, condition: 'Good', location: 'AV Cabinet', description: 'Shure BLX24 handheld wireless system', checkedOut: false, borrower: null },
-      { name: 'Portable Speaker', category: 'Audio/Visual', quantity: 1, condition: 'Fair', location: 'AV Cabinet', description: 'JBL EON610 — needs speaker cover replaced', checkedOut: false, borrower: null },
-      { name: 'Hymn Book (ዝማሬ መጽሐፍ)', category: 'Printed Material', quantity: 20, condition: 'Fair', location: 'Library Shelf', description: 'Ethiopian Orthodox Sunday School hymnal', checkedOut: false, borrower: null },
+      { name: 'Portable Speaker', category: 'Audio/Visual', quantity: 1, condition: 'Fair', location: 'AV Cabinet', description: 'JBL EON610 â€” needs speaker cover replaced', checkedOut: false, borrower: null },
+      { name: 'Hymn Book (á‹áˆ›áˆ¬ áˆ˜áŒ½áˆá)', category: 'Printed Material', quantity: 20, condition: 'Fair', location: 'Library Shelf', description: 'Ethiopian Orthodox Sunday School hymnal', checkedOut: false, borrower: null },
       { name: 'Music Stands', category: 'Furniture', quantity: 6, condition: 'Good', location: 'Storage Room B', description: 'Folding music stands', checkedOut: false, borrower: null },
-      { name: 'Projector', category: 'Audio/Visual', quantity: 1, condition: 'Needs Repair', location: 'AV Cabinet', description: 'Bulb needs replacing — submitted maintenance request', checkedOut: false, borrower: null },
+      { name: 'Projector', category: 'Audio/Visual', quantity: 1, condition: 'Needs Repair', location: 'AV Cabinet', description: 'Bulb needs replacing â€” submitted maintenance request', checkedOut: false, borrower: null },
     ];
     equipData.forEach(e => Equipment.add(e));
 
@@ -293,35 +293,35 @@ const DB = (() => {
       Checkouts.checkout({
         equipmentId: equip[1].id,
         borrower: 'Yonas Tesfaye',
-        purpose: 'Youth rehearsal — Saturday',
+        purpose: 'Youth rehearsal â€” Saturday',
         expectedReturn: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       });
     }
 
-    /* ── Services seed ── */
+    /* â”€â”€ Services seed â”€â”€ */
     const allStudentsNow = Students.all();
     const getStudentsByClass = cls => allStudentsNow.filter(s => s.class === cls).map(s => s.id);
     const servicesData = [
       {
-        name: 'ቅዳሴ — ዕለተ ሰንበት',
+        name: 'á‰…á‹³áˆ´ â€” á‹•áˆˆá‰° áˆ°áŠ•á‰ á‰µ',
         description: 'The main Sunday Divine Liturgy choir service. Senior students lead worship before the congregation.',
         schedule: 'Every Sunday 6:00 AM',
-        department: 'ሀዋርያ ተልዕኮ ሀ',
-        studentIds: getStudentsByClass('ሀዋርያ ተልዕኮ ሀ')
+        department: 'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆ€',
+        studentIds: getStudentsByClass('áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆ€')
       },
       {
-        name: 'ሰንበት ት/ቤት — ቅዳሴ',
+        name: 'áˆ°áŠ•á‰ á‰µ á‰µ/á‰¤á‰µ â€” á‰…á‹³áˆ´',
         description: 'Sunday School opening worship service. Intermediate students sing hymns before class begins.',
         schedule: 'Every Sunday 9:00 AM',
-        department: 'ዝማሬ 4 ሀ',
-        studentIds: getStudentsByClass('ዝማሬ 4 ሀ').concat(getStudentsByClass('ዝማሬ 4 ለ'))
+        department: 'á‹áˆ›áˆ¬ 4 áˆ€',
+        studentIds: getStudentsByClass('á‹áˆ›áˆ¬ 4 áˆ€').concat(getStudentsByClass('á‹áˆ›áˆ¬ 4 áˆˆ'))
       },
       {
-        name: 'ፋሲካ ዝማሬ — Easter Choir',
+        name: 'á‹áˆ²áŠ« á‹áˆ›áˆ¬ â€” Easter Choir',
         description: 'Special Easter Vigil choir performance. Selected members from advanced classes participate.',
         schedule: 'Easter Saturday Evening',
-        department: 'ሀዋርያ ተልዕኮ ለ',
-        studentIds: getStudentsByClass('ሀዋርያ ተልዕኮ ለ')
+        department: 'áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆˆ',
+        studentIds: getStudentsByClass('áˆ€á‹‹áˆ­á‹« á‰°áˆá‹•áŠ® áˆˆ')
       }
     ];
     servicesData.forEach(s => Services.add(s));
@@ -329,14 +329,14 @@ const DB = (() => {
     localStorage.setItem(KEYS.seeded, '1');
   }
 
-  /* ── Cloud sync pull ──────────────────────── */
+  /* â”€â”€ Cloud sync pull â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   async function pullFromCloud() {
     if (window.CLOUD && CLOUD.isConnected()) {
       await CLOUD.pull();
     }
   }
 
-  /* ── Public API ───────────────────────────── */
+  /* â”€â”€ Public API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
   return {
     Students, Attendance, Equipment, Checkouts, Services,
     CLASSES, CONDITIONS, CATEGORIES,
@@ -346,3 +346,4 @@ const DB = (() => {
 
 // Auto-seed on load
 document.addEventListener('DOMContentLoaded', () => DB.seed());
+

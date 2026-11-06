@@ -62,6 +62,25 @@ const CLOUD = (() => {
     }
   }
 
+  /* ── Push full collection (called by _set in data.js) ── */
+  async function push(localKey, dataArray) {
+    if (!_ok || !_db || !Array.isArray(dataArray)) return;
+    const colName = COL[localKey];
+    if (!colName) return;
+    try {
+      // Upsert each item by id
+      const batch = _db.batch();
+      dataArray.forEach(item => {
+        if (item && item.id) {
+          batch.set(_db.collection(colName).doc(item.id), item);
+        }
+      });
+      await batch.commit();
+    } catch (e) {
+      console.warn(`[Cloud] push '${colName}' failed:`, e.message);
+    }
+  }
+
   /* ── Upsert a single document ─────────────── */
   async function upsert(localKey, item) {
     if (!_ok || !_db || !item || !item.id) return;
@@ -105,5 +124,5 @@ const CLOUD = (() => {
     if (el && el.parentNode) el.parentNode.removeChild(el);
   }
 
-  return { init, isConnected, pull, upsert, remove };
+  return { init, isConnected, pull, push, upsert, remove };
 })();
